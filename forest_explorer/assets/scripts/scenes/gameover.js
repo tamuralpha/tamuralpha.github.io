@@ -132,6 +132,7 @@ export class Title_Scene extends OnlySelectScene {
     this.playerdata = data.playerdata;
   }
   async create() {
+    await this.loadFont();
     await super.create('title', this.START_BUTTON);
   }
   async fadein() {

@@ -397,9 +397,36 @@ export class Battle_Scene extends Phaser.Scene {
 class EnemyDatabase {
   constructor(scene) {
     this.enemydatas = scene.cache.json.get('enemy_data');
+    console.log(this.enemydatas);
+    // {
+    //   fire_0: new EnemyData('fire_0', EFFECT_ELEMENT.FIRE, 4, 1),
+    //   fire_1: new EnemyData('fire_1', EFFECT_ELEMENT.FIRE, 8, 2),
+    //   fire_2: new EnemyData('fire_2', EFFECT_ELEMENT.FIRE, 12, 4),
+    //   fire_3: new EnemyData('fire_3', EFFECT_ELEMENT.FIRE, 30, 6),
+
+    //   ice_0: new EnemyData('ice_0', EFFECT_ELEMENT.ICE, 4, 1),
+    //   ice_1: new EnemyData('ice_1', EFFECT_ELEMENT.ICE, 8, 2),
+    //   ice_2: new EnemyData('ice_2', EFFECT_ELEMENT.ICE, 12, 4),
+    //   ice_3: new EnemyData('ice_3', EFFECT_ELEMENT.ICE, 30, 5),
+
+    //   wind_0: new EnemyData('wind_0', EFFECT_ELEMENT.WIND, 4, 1),
+    //   wind_1: new EnemyData('wind_1', EFFECT_ELEMENT.WIND, 8, 2),
+    //   wind_2: new EnemyData('wind_2', EFFECT_ELEMENT.WIND, 12, 4),
+    //   wind_3: new EnemyData('wind_3', EFFECT_ELEMENT.WIND, 30, 6),
+
+    //   iron_0: new EnemyData('iron_0', EFFECT_ELEMENT.WIND, 8, 1),
+    //   iron_1: new EnemyData('iron_1', EFFECT_ELEMENT.ICE, 12, 3),
+    //   iron_2: new EnemyData('iron_2', EFFECT_ELEMENT.WIND, 10, 5),
+    //   iron_3: new EnemyData('iron_3', EFFECT_ELEMENT.ICE, 30, 4),
+    //   iron_4: new EnemyData('iron_4', EFFECT_ELEMENT.ICE, 26, 6),
+    //   iron_5: new EnemyData('iron_5', EFFECT_ELEMENT.FIRE, 42, 6),
+
+    //   boss_0: new EnemyData('boss_0', EFFECT_ELEMENT.FIRE, 60, 8),
+    // }
   }
   get(id) {
     const original = this.enemydatas[id];
+    console.log(original);
     return new EnemyData(original.id, original.type, original.heart_point, original.attack_point, original.option);
   }
 }

@@ -95,23 +95,23 @@ class Game_Scene extends Phaser.Scene {
     this.isInputActive = true;
 
     // // Tキーのオブジェクトを作成
-    // let tKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
+    let tKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
 
-    // // Tキーが押されたときのイベントリスナー（デバッグ用）
-    // tKey.on('down', async (event) => {
-    //   // await this.startGameOverScene();
+    // Tキーが押されたときのイベントリスナー（デバッグ用）
+    tKey.on('down', async (event) => {
+      // await this.startGameOverScene();
 
-    //   // await this.launchTreasureScene();
-    //   // console.log(this.mapHolder.mapObjectHolder.mapObjects);
-    //   // シーンBを重ねる
-    //   // await this.launchDeckEditScene(false);
-    //   // this.isInputActive = false;
-    //   // await this.launchBattleScene(`enemy_${this.stagedata.bossID}`);
-    //   await this.startGameClaerScene();
-    //   // this.cardHolder.clear();
-    //   // this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1 });
-    //   // this.isInputActive = true;
-    // });
+      // await this.launchTreasureScene();
+      // console.log(this.mapHolder.mapObjectHolder.mapObjects);
+      // シーンBを重ねる
+      // await this.launchDeckEditScene(false);
+      // this.isInputActive = false;
+      // await this.launchBattleScene(`enemy_${this.stagedata.bossID}`);
+      await this.startGameClaerScene();
+      // this.cardHolder.clear();
+      // this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1 });
+      // this.isInputActive = true;
+    });
   }
   async createCards() {
     this.handCardHolder.create(5);
@@ -388,9 +388,15 @@ class Game_Scene extends Phaser.Scene {
 
 var config = {
   type: Phaser.AUTO,
-  width: 896,
-  height: 512,
-  pixelArt: true,  // これを追加
+  scale: {
+      mode: Phaser.Scale.FIT,
+      parent: 'game',
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      width: 896,
+      height: 512,
+  },
+  antialias: false,
+  pixelArt: true,
   physics: {
     default: 'arcade',
     arcade: {
