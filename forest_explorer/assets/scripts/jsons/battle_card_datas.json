@@ -1,0 +1,128 @@
+{
+  "datas": [
+    {
+      "id": 0,
+      "name": "分析魔法",
+      "detail": "敵の弱点を分析し、次の攻撃の威力も上がります。",
+      "effects": {
+        "effect": "analyze"
+      }
+    },
+    {
+      "id": 1,
+      "name": "炎の魔法（弱）",
+      "detail": "炎の魔法（弱）で攻撃します。",
+      "effects": {
+        "effect": "attack",
+        "effect_element": "fire",
+        "rnd_value": "1-3",
+        "rank": 1
+      }
+    },
+    {
+      "id": 2,
+      "name": "氷の魔法（弱）",
+      "detail": "氷の魔法（弱）で攻撃します。",
+      "effects": {
+        "effect": "attack",
+        "effect_element": "ice",
+        "rnd_value": "1-3",
+        "rank": 1
+      }
+    },
+    {
+      "id": 3,
+      "name": "雷の魔法（弱）",
+      "detail": "雷の魔法（弱）で攻撃します。",
+      "effects": {
+        "effect": "attack",
+        "effect_element": "wind",
+        "rnd_value": "1-3",
+        "rank": 1
+      }
+    },
+    {
+      "id": 4,
+      "name": "炎の魔法",
+      "detail": "炎の魔法で攻撃します。",
+      "effects": {
+        "effect": "attack",
+        "effect_element": "fire",
+        "rnd_value": "3-5",
+        "rank": 2
+      }
+    },
+    {
+      "id": 5,
+      "name": "氷の魔法",
+      "detail": "氷の魔法で攻撃します。",
+      "effects": {
+        "effect": "attack",
+        "effect_element": "ice",
+        "rnd_value": "3-5",
+        "rank": 2
+      }
+    },
+    {
+      "id": 6,
+      "name": "雷の魔法",
+      "detail": "雷の魔法で攻撃します。",
+      "effects": {
+        "effect": "attack",
+        "effect_element": "wind",
+        "rnd_value": "3-5",
+        "rank": 2
+      }
+    },
+    {
+      "id": 7,
+      "name": "炎の魔法（強）",
+      "detail": "炎の魔法（強）で攻撃します。",
+      "effects": {
+        "effect": "attack",
+        "effect_element": "fire",
+        "rnd_value": "6-9",
+        "rank": 3
+      }
+    },
+    {
+      "id": 8,
+      "name": "氷の魔法（強）",
+      "detail": "氷の魔法（強）で攻撃します。",
+      "effects": {
+        "effect": "attack",
+        "effect_element": "ice",
+        "rnd_value": "6-9",
+        "rank": 3
+      }
+    },
+    {
+      "id": 9,
+      "name": "雷の魔法（強）",
+      "detail": "雷の魔法（強）で攻撃します。",
+      "effects": {
+        "effect": "attack",
+        "effect_element": "wind",
+        "rnd_value": "6-9",
+        "rank": 3
+      }
+    },
+    {
+      "id": 10,
+      "name": "回復魔法",
+      "detail": "回復します。",
+      "effects": {
+        "effect": "heal",
+        "rnd_value": "2-3"
+      }
+    },
+    {
+      "id": 11,
+      "name": "二重詠唱",
+      "detail": "次の攻撃が二回行えます。",
+      "effects": {
+        "effect": "dual"
+      }
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "assetPack": {
+    "files": [
+      {
+        "type": "image",
+        "key": "background_0",
+        "url": "assets/field/1.webp"
+      },
+      {
+        "type": "image",
+        "key": "background_1",
+        "url": "assets/field/2.webp"
+      },
+      {
+        "type": "image",
+        "key": "background_2",
+        "url": "assets/field/3.webp"
+      },
+      {
+        "type": "image",
+        "key": "background_3",
+        "url": "assets/field/4.webp"
+      },
+      {
+        "type": "image",
+        "key": "ground",
+        "url": "assets/field/scaffold_b.png"
+      },
+      {
+        "type": "image",
+        "key": "ground_long",
+        "url": "assets/field/scaffold_long.webp"
+      },
+      {
+        "type": "image",
+        "key": "player",
+        "url": "assets/chara/0.png"
+      },
+      {
+        "type": "image",
+        "key": "treasure",
+        "url": "assets/icons/treasure.png"
+      },
+      {
+        "type": "image",
+        "key": "edit",
+        "url": "assets/icons/Book.webp"
+      },
+      {
+        "type": "image",
+        "key": "deck_board",
+        "url": "assets/card/deck_board.webp"
+      },
+      {
+        "type": "image",
+        "key": "deck_board_r",
+        "url": "assets/card/deck_board_r.webp"
+      },
+      {
+        "type": "image",
+        "key": "r_frame",
+        "url": "assets/card/re_frame.webp"
+      },
+      {
+        "type": "image",
+        "key": "frame",
+        "url": "assets/card/sr_card_frame_y.png"
+      },
+      {
+        "type": "image",
+        "key": "n_frame",
+        "url": "assets/card/sr_card_frame_yn.png"
+      },
+      {
+        "type": "image",
+        "key": "frame_s",
+        "url": "assets/card/sr_card_frame_y_square.png"
+      },
+      {
+        "type": "image",
+        "key": "n_frame_s",
+        "url": "assets/card/sr_card_frame_yn_square.png"
+      },
+      {
+        "type": "image",
+        "key": "heart",
+        "url": "assets/icons/b_heart_icon.png"
+      },
+      {
+        "type": "image",
+        "key": "deck",
+        "url": "assets/icons/b_deck_icon.png"
+      },
+      {
+        "type": "image",
+        "key": "fire",
+        "url": "assets/icons/fire_icon.png"
+      },
+      {
+        "type": "image",
+        "key": "ice",
+        "url": "assets/icons/ice_icon.png"
+      },
+      {
+        "type": "image",
+        "key": "wind",
+        "url": "assets/icons/wind_icon.png"
+      },
+      {
+        "type": "image",
+        "key": "etc",
+        "url": "assets/icons/etc_icon.png"
+      },
+      {
+        "type": "image",
+        "key": "goal",
+        "url": "assets/icons/goal.webp"
+      },
+      {
+        "type": "image",
+        "key": "analyze",
+        "url": "assets/icons/analyze.webp"
+      },
+      {
+        "type": "image",
+        "key": "heal",
+        "url": "assets/icons/heal.webp"
+      },
+      {
+        "type": "image",
+        "key": "dual",
+        "url": "assets/icons/ex_turn.webp"
+      },
+      {
+        "type": "image",
+        "key": "trash",
+        "url": "assets/icons/trash.webp"
+      },
+      {
+        "type": "image",
+        "key": "commit",
+        "url": "assets/icons/commit.webp"
+      },
+      {
+        "type": "image",
+        "key": "reset",
+        "url": "assets/icons/reset.webp"
+      },
+      {
+        "type": "image",
+        "key": "particle",
+        "url": "assets/particle.png"
+      },
+      {
+        "type": "image",
+        "key": "particle_p",
+        "url": "assets/effect/particle_p.webp"
+      },
+      {
+        "type": "image",
+        "key": "effect_ice",
+        "url": "assets/effect/ice.webp"
+      },
+      {
+        "type": "image",
+        "key": "effect_spark",
+        "url": "assets/effect/spark.webp"
+      },
+      {
+        "type": "image",
+        "key": "effect_teleport",
+        "url": "assets/effect/teleport.webp"
+      },
+      {
+        "type": "spritesheet",
+        "key": "effect_spark_sheet",
+        "url": "assets/effect/spark_sheet.webp",
+        "frameConfig": {
+          "frameWidth": 151,
+          "frameHeight": 151
+        }
+      },
+      {
+        "type": "image",
+        "key": "board",
+        "url": "assets/icons/board.webp"
+      },
+      {
+        "type": "image",
+        "key": "title",
+        "url": "assets/illust/title.webp"
+      },
+      {
+        "type": "image",
+        "key": "gameover",
+        "url": "assets/illust/gameover.webp"
+      },
+      {
+        "type": "image",
+        "key": "gameclear",
+        "url": "assets/illust/clear.webp"
+      }
+    ]
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "fire_0": {
+    "id": "fire_0",
+    "type": "fire",
+    "heart_point": 4,
+    "attack_point": 1
+  },
+  "fire_1": {
+    "id": "fire_1",
+    "type": "fire",
+    "heart_point": 8,
+    "attack_point": 2
+  },
+  "fire_2": {
+    "id": "fire_2",
+    "type": "fire",
+    "heart_point": 12,
+    "attack_point": 4
+  },
+  "fire_3": {
+    "id": "fire_3",
+    "type": "fire",
+    "heart_point": 30,
+    "attack_point": 6
+  },
+  "ice_0": {
+    "id": "ice_0",
+    "type": "ice",
+    "heart_point": 4,
+    "attack_point": 1
+  },
+  "ice_1": {
+    "id": "ice_1",
+    "type": "ice",
+    "heart_point": 8,
+    "attack_point": 2
+  },
+  "ice_2": {
+    "id": "ice_2",
+    "type": "ice",
+    "heart_point": 12,
+    "attack_point": 4
+  },
+  "ice_3": {
+    "id": "ice_3",
+    "type": "ice",
+    "heart_point": 30,
+    "attack_point": 5
+  },
+  "wind_0": {
+    "id": "wind_0",
+    "type": "wind",
+    "heart_point": 4,
+    "attack_point": 1
+  },
+  "wind_1": {
+    "id": "wind_1",
+    "type": "wind",
+    "heart_point": 8,
+    "attack_point": 2
+  },
+  "wind_2": {
+    "id": "wind_2",
+    "type": "wind",
+    "heart_point": 12,
+    "attack_point": 4
+  },
+  "wind_3": {
+    "id": "wind_3",
+    "type": "wind",
+    "heart_point": 30,
+    "attack_point": 6
+  },
+  "iron_0": {
+    "id": "iron_0",
+    "type": "wind",
+    "heart_point": 8,
+    "attack_point": 1
+  },
+  "iron_1": {
+    "id": "iron_1",
+    "type": "ice",
+    "heart_point": 12,
+    "attack_point": 3
+  },
+  "iron_2": {
+    "id": "iron_2",
+    "type": "wind",
+    "heart_point": 10,
+    "attack_point": 5
+  },
+  "iron_3": {
+    "id": "iron_3",
+    "type": "ice",
+    "heart_point": 30,
+    "attack_point": 4
+  },
+  "iron_4": {
+    "id": "iron_4",
+    "type": "ice",
+    "heart_point": 26,
+    "attack_point": 6
+  },
+  "iron_5": {
+    "id": "iron_5",
+    "type": "fire",
+    "heart_point": 42,
+    "attack_point": 6
+  },
+  "boss_0": {
+    "id": "boss_0",
+    "type": "fire",
+    "heart_point": 60,
+    "attack_point": 8
+  }
+}

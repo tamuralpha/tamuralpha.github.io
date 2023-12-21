@@ -1,0 +1,44 @@
+{
+  "stage1": {
+    "enemyIDs": ["fire_0", "ice_0", "wind_0"],
+    "bossID": "iron_0",
+    "dropRank": 1,
+    "rareDropRate": 10,
+    "length": 12
+  },
+  "stage2": {
+    "enemyIDs": ["fire_0", "ice_0", "wind_0", "iron_0", "ice_1"],
+    "bossID": "iron_1",
+    "dropRank": 1,
+    "rareDropRate": 30,
+    "length": 20
+  },
+  "stage3": {
+    "enemyIDs": ["fire_1", "ice_1", "wind_1", "iron_2"],
+    "bossID": "iron_3",
+    "dropRank": 2,
+    "rareDropRate": 10,
+    "length": 24
+  },
+  "stage4": {
+    "enemyIDs": ["iron_0", "iron_1", "iron_2"],
+    "bossID": "iron_4",
+    "dropRank": 2,
+    "rareDropRate": 30,
+    "length": 28
+  },
+  "stage5": {
+    "enemyIDs": ["iron_2", "iron_3"],
+    "bossID": "iron_5",
+    "dropRank": 3,
+    "rareDropRate": 0,
+    "length": 32
+  },
+  "stage6": {
+    "enemyIDs": ["fire_2", "ice_2", "wind_2", "iron_3"],
+    "bossID": "boss_0",
+    "dropRank": 3,
+    "rareDropRate": 0,
+    "length": 40
+  }
+}
