@@ -74,7 +74,7 @@ export async function fadeinOverlay(scene, overlay) {
     alpha: 1,
     x: 896,
     delay: 250,
-    duration: 500,  // アニメーションの期間（ミリ秒）
+    duration: 350,  // アニメーションの期間（ミリ秒）
     ease: 'Power3'  // イージング関数
   };
 
@@ -90,7 +90,7 @@ export async function fadeoutOverlay(scene) {
     targets: overlay,
     alpha: 1,
     x: 0,
-    duration: 500,  // アニメーションの期間（ミリ秒）
+    duration: 350,  // アニメーションの期間（ミリ秒）
     ease: 'Power3'  // イージング関数
   };
 

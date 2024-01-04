@@ -421,8 +421,14 @@ function resizeGame() {
   const scaleX = windowWidth / canvasWidth;
   const scaleY = windowHeight / canvasHeight;
 
-  // 両方の比率のうち小さい方を選択し、整数倍率を求める
-  let scale = Math.min(Math.floor(scaleX), Math.floor(scaleY));
+  // 両方の比率のうち小さい方を選択し、0.25倍の単位で倍率を求める
+  let scale = Math.min(scaleX, scaleY);
+  scale = Math.round(scale / 0.25) * 0.25;
+
+  // ウィンドウの幅を超える場合は補正
+  scale = windowWidth > canvasWidth * scale || windowHeight > canvasHeight * scale ? scale - 0.25 : scale;  
+  
+  // 最小倍率は0.5とする
   scale = Math.max(0.5, scale);
 
   // キャンバスの新しいサイズを設定
@@ -434,8 +440,4 @@ window.addEventListener('resize', resizeGame);
 
 // ゲーム起動
 var game = new Phaser.Game(config);
-
-// ウィンドウのリサイズを検知
-game.events.on('ready', function () {
-  resizeGame();
-});
+resizeGame();
