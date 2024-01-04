@@ -4,6 +4,7 @@
     "bossID": "iron_0",
     "dropRank": 1,
     "rareDropRate": 10,
+    "remainingRestCards": 3,
     "length": 12
   },
   "stage2": {
@@ -11,6 +12,7 @@
     "bossID": "iron_1",
     "dropRank": 1,
     "rareDropRate": 30,
+    "remainingRestCards": 3,
     "length": 20
   },
   "stage3": {
@@ -18,6 +20,7 @@
     "bossID": "iron_3",
     "dropRank": 2,
     "rareDropRate": 10,
+    "remainingRestCards": 4,
     "length": 24
   },
   "stage4": {
@@ -25,6 +28,7 @@
     "bossID": "iron_4",
     "dropRank": 2,
     "rareDropRate": 30,
+    "remainingRestCards": 4,
     "length": 28
   },
   "stage5": {
@@ -32,6 +36,7 @@
     "bossID": "iron_5",
     "dropRank": 3,
     "rareDropRate": 0,
+    "remainingRestCards": 5,
     "length": 32
   },
   "stage6": {
@@ -39,6 +44,7 @@
     "bossID": "boss_0",
     "dropRank": 3,
     "rareDropRate": 0,
+    "remainingRestCards": 5,
     "length": 40
   }
 }

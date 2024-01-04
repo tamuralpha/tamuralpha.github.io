@@ -32,7 +32,6 @@ export class MapHolder {
   // プレイヤーの位置に合わせ、いろいろなものを移動します
   // その辺りもここで処理されます。新しい足場を生成 / ランダムなオブジェクトを出現 / メソッド名変えた方がいいかも
   async organizeAllMapByPlayerPosition(amount = 1) {
-    console.log("変更mae ", this.mapObjectHolder.mapObjects);
     // ゴールが見えている場合、ゴールマスが右端になるようにズラします
     const isInGoalLength = this.stagedata.toGoalLength < 6;
     if (isInGoalLength) {
@@ -51,7 +50,6 @@ export class MapHolder {
     tweens.push(this.scaffoldHolder.dropAndPop(amount));
     tweens.push(this.cleanupMapObjects(amount));
     await Promise.all(tweens);
-    console.log("変更ato ", this.mapObjectHolder.mapObjects);
   }
   // プレイヤーの移動後処理
   // 移動範囲外の足場＆オブジェクトの破棄

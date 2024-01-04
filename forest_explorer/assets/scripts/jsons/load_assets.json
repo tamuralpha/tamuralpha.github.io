@@ -83,6 +83,11 @@
       },
       {
         "type": "image",
+        "key": "analyzed",
+        "url": "assets/icons/analyzed.webp"
+      },
+      {
+        "type": "image",
         "key": "heart",
         "url": "assets/icons/b_heart_icon.png"
       },
@@ -90,6 +95,11 @@
         "type": "image",
         "key": "deck",
         "url": "assets/icons/b_deck_icon.png"
+      },
+      {
+        "type": "image",
+        "key": "rest",
+        "url": "assets/icons/rest.webp"
       },
       {
         "type": "image",

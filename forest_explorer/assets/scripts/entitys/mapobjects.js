@@ -315,7 +315,6 @@ export class MapObjectHolder {
       }
     }
 
-    if (overlaps.length > 0) console.log("重なりを検出しました => ", overlaps);
     if (overlaps.length === 0) return null;
     return overlaps;
   }

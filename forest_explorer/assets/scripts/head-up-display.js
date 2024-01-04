@@ -19,6 +19,7 @@ export class HeadUpDisplay {
     etc.setScale(0.5);
     const goal = this.scene.add.image(790, 34, 'goal').setDepth(111);
     goal.setScale(0.75);
+    const rest = this.scene.add.image(701, 34, 'rest').setDepth(111);
 
     this.hpText = this.scene.add.text(139, 18, ":5/5", {
       fontSize: 24,
@@ -35,6 +36,13 @@ export class HeadUpDisplay {
       strokeThickness: 4
     }).setDepth(111);
     this.goaltext = this.scene.add.text(816, 17, this.stagedata.toGoalLength, {
+      fontSize: 32,
+      fontFamily: "Pixelify Sans",
+      color: "#FFF",
+      stroke: '#000',
+      strokeThickness: 4
+    }).setDepth(111);
+    this.restText = this.scene.add.text(726, 17, this.stagedata.remainingRestCards, {
       fontSize: 32,
       fontFamily: "Pixelify Sans",
       color: "#FFF",
@@ -90,6 +98,7 @@ export class HeadUpDisplay {
     this.otherCountText.setText(elementLengths.otherCount);
 
     this.goaltext.setText(this.stagedata.toGoalLength);
+    this.restText.setText(this.stagedata.remainingRestCards);
   }
   redrawCounts(tempDeck) {
     const elementLengths = tempDeck.getElementLengthsNotUsed();

@@ -3,7 +3,7 @@ import { MapHolder } from '../entitys/mapholder.js'
 import { CardHolder } from '../cards/cardholder.js'
 import { Deck } from '../cards/deck.js';
 import * as Util from '../util.js'
-import { Title_Scene, GameOver_Scene, GameClear_Scene } from './gameover.js';
+import { Title_Scene, GameOver_Scene, GameClear_Scene } from './only_select_scenes.js';
 import { PlayerData } from '../player.js';
 import { DeckEdit_Scene } from './deck_edit.js'
 import { Battle_Scene } from './battle.js'
@@ -40,6 +40,7 @@ class Game_Scene extends Phaser.Scene {
       this.load.image(`card_battle_${index}`, `assets/card/battle/${index}.png`);
     }
   }
+  // jsonに記載？
   loadEnemys() {
     const types_lengths = {
       fire: 4,
@@ -67,9 +68,9 @@ class Game_Scene extends Phaser.Scene {
     this.deck = new Deck(this);
     this.playerdata = this.data.playerdata ? this.data.playerdata : new PlayerData(this);
     this.playerdata_whenStageStart = this.playerdata.copy();
-    this.handCardHolder = new CardHolder(this);
+    this.handCardHolder = new CardHolder(this, null, this.stagedata);
     this.headUpDisplay = new HeadUpDisplay(this, this.playerdata, this.stagedata);
-    console.log(this.cache.json.get('map_card_datas'));
+
     // 画面を真っ暗にし、その裏で初期設定
     const fadeInOverlay = Util.prepareFadeinOverlay(this);
 
@@ -95,23 +96,23 @@ class Game_Scene extends Phaser.Scene {
     this.isInputActive = true;
 
     // // Tキーのオブジェクトを作成
-    let tKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
+    // let tKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
 
-    // Tキーが押されたときのイベントリスナー（デバッグ用）
-    tKey.on('down', async (event) => {
-      // await this.startGameOverScene();
+    // // Tキーが押されたときのイベントリスナー（デバッグ用）
+    // tKey.on('down', async (event) => {
+    //   // await this.startGameOverScene();
 
-      // await this.launchTreasureScene();
-      // console.log(this.mapHolder.mapObjectHolder.mapObjects);
-      // シーンBを重ねる
-      // await this.launchDeckEditScene(false);
-      // this.isInputActive = false;
-      // await this.launchBattleScene(`enemy_${this.stagedata.bossID}`);
-      await this.startGameClaerScene();
-      // this.cardHolder.clear();
-      // this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1 });
-      // this.isInputActive = true;
-    });
+    //   // await this.launchTreasureScene();
+    //   // console.log(this.mapHolder.mapObjectHolder.mapObjects);
+    //   // シーンBを重ねる
+    //   // await this.launchDeckEditScene(false);
+    //   // this.isInputActive = false;
+    //   // await this.launchBattleScene(`enemy_${this.stagedata.bossID}`);
+    //   await this.startGameClaerScene();
+    //   // this.cardHolder.clear();
+    //   // this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1 });
+    //   // this.isInputActive = true;
+    // });
   }
   async createCards() {
     this.handCardHolder.create(5);
@@ -182,6 +183,8 @@ class Game_Scene extends Phaser.Scene {
     tweens = tweens.concat(this.slideAndCreateScaffolds(movedDistance));
 
     await Promise.all(tweens);
+    this.headUpDisplay.refreshOnMap(); // HUDを再表示、主に休息カードの残りなど
+
   }
   async goalEvent() {
     if (this.stagedata.toGoalLength === 0)
@@ -236,7 +239,6 @@ class Game_Scene extends Phaser.Scene {
 
     while (!isOverlapedNone || failsafeCount > 100) {
       const overlapPair = this.mapHolder.getOverlapPair();
-      console.log(overlapPair)
 
       if (!overlapPair) {
         isOverlapedNone = true;
@@ -389,11 +391,11 @@ class Game_Scene extends Phaser.Scene {
 var config = {
   type: Phaser.AUTO,
   scale: {
-      mode: Phaser.Scale.FIT,
-      parent: 'game',
-      autoCenter: Phaser.Scale.CENTER_BOTH,
-      width: 896,
-      height: 512,
+    mode: Phaser.Scale.NONE,  // 自動スケーリングを無効にする
+    parent: 'game',
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: 896,
+    height: 512,
   },
   antialias: false,
   pixelArt: true,
@@ -407,4 +409,34 @@ var config = {
   scene: [Title_Scene, Game_Scene, DeckEdit_Scene, Battle_Scene, Treasure_Scene, GameOver_Scene, GameClear_Scene]
 };
 
+// カスタムスケーリング
+// ゲーム全体に整数倍の拡大を行います
+// 単純に現在のウィンドウサイズを検知し、それに収まる範囲で一番大きい倍率になります
+function resizeGame() {
+  const canvas = game.canvas; //, 
+  const canvasWidth = canvas.width, canvasHeight = canvas.height;
+  const windowWidth = window.innerWidth, windowHeight = window.innerHeight;
+  console.log(windowWidth, windowHeight)
+
+  // キャンバスとウィンドウのサイズ比を計算
+  const scaleX = windowWidth / canvasWidth;
+  const scaleY = windowHeight / canvasHeight;
+
+  // 両方の比率のうち小さい方を選択し、整数倍率を求める
+  let scale = Math.min(Math.floor(scaleX), Math.floor(scaleY));
+  scale = Math.max(1, scale);
+
+  // キャンバスの新しいサイズを設定
+  canvas.style.width = (canvasWidth * scale) + 'px';
+  canvas.style.height = (canvasHeight * scale) + 'px';
+}
+
+window.addEventListener('resize', resizeGame);
+
+// ゲーム起動
 var game = new Phaser.Game(config);
+
+// ウィンドウのリサイズを検知
+game.events.on('ready', function () {
+  resizeGame();
+});

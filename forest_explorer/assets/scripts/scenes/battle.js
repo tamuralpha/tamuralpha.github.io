@@ -39,8 +39,12 @@ export class Battle_Scene extends Phaser.Scene {
   drawCharacter() {
     this.playersImage = this.add.image(248, 306, 'player').setDepth(DEPTH.PLAYER_0);
     this.playersImage.y -= this.playersImage.height / 2;
+
     this.enemysImage = this.add.image(648, 306, `enemy_${this.enemydata.id}`).setDepth(DEPTH.ENEMY_0);
     this.enemysImage.y -= this.enemysImage.height / 2;
+
+    this.enemysStatusAilmentIcons = [];
+
     this.add.image(448, 306, 'ground_long').setDepth(DEPTH.SCAFFOLD);
     this.playersImage.scaleX = -1;
   }
@@ -71,6 +75,7 @@ export class Battle_Scene extends Phaser.Scene {
     if (isBattleEnd) { this.endBattleScene(); return; }
 
     this.enemydata.updateTurn();
+    this.showEnemyStatusAilment();
     this.headUpDisplay.refreshOnBattle();
 
     await this.refillHand(card);
@@ -288,7 +293,7 @@ export class Battle_Scene extends Phaser.Scene {
       color: color,
       stroke: '#000',
       strokeThickness: 4
-    }).setDepth(DEPTH.UI_TEXT);
+    }).setDepth(DEPTH.UI_PLUS);
 
     const damageTweenParameter = {
       targets: damageText,
@@ -355,6 +360,22 @@ export class Battle_Scene extends Phaser.Scene {
 
     await Util.waitForTween(this, tweenParameter);
   }
+  // 敵の状態異常アイコンを表示
+  showEnemyStatusAilment() {
+    this.clearEnemyStatusAilment();
+
+    // 現状1つのみだが、当然増やすなら増やし方を考える
+    if (this.enemydata.checkIsAnalyzed()) {
+      const enemysFoot = this.enemysImage.y+this.enemysImage.height/2;
+      const icon = this.add.image(this.enemysImage.x, enemysFoot, 'analyzed').setScale(0.5).setDepth(DEPTH.ENEMY_1);
+      icon.y = icon.y + (icon.height*0.5)/2; // アイコンの位置は敵の足元からアイコン自身の高さ分ズラす
+      this.enemysStatusAilmentIcons.push(icon);
+    }
+  }
+  clearEnemyStatusAilment() {
+    this.enemysStatusAilmentIcons.forEach(icon => icon.destroy());
+    this.enemysStatusAilmentIcons = [];
+  }
   // 『分析魔法』のエフェクトの表示。シーン中永続的に表示される
   showAnalyzeParticle(target, enemydata) {
     if (this.analyzeEffectParticle) return;
@@ -384,6 +405,10 @@ export class Battle_Scene extends Phaser.Scene {
   }
   clear() {
     this.handCardHolder.clear();
+    if (this.playersImage) this.playersImage.destroy();
+    if (this.enemysImage) this.enemysImage.destroy();
+    this.clearEnemyStatusAilment();
+
     this.analyzeEffectParticle = null;
   }
   async endBattleScene() {
@@ -393,40 +418,12 @@ export class Battle_Scene extends Phaser.Scene {
     this.game.events.emit('BattleCompleted', this.playerdata);
   }
 }
-// 仮置き
 class EnemyDatabase {
   constructor(scene) {
     this.enemydatas = scene.cache.json.get('enemy_data');
-    console.log(this.enemydatas);
-    // {
-    //   fire_0: new EnemyData('fire_0', EFFECT_ELEMENT.FIRE, 4, 1),
-    //   fire_1: new EnemyData('fire_1', EFFECT_ELEMENT.FIRE, 8, 2),
-    //   fire_2: new EnemyData('fire_2', EFFECT_ELEMENT.FIRE, 12, 4),
-    //   fire_3: new EnemyData('fire_3', EFFECT_ELEMENT.FIRE, 30, 6),
-
-    //   ice_0: new EnemyData('ice_0', EFFECT_ELEMENT.ICE, 4, 1),
-    //   ice_1: new EnemyData('ice_1', EFFECT_ELEMENT.ICE, 8, 2),
-    //   ice_2: new EnemyData('ice_2', EFFECT_ELEMENT.ICE, 12, 4),
-    //   ice_3: new EnemyData('ice_3', EFFECT_ELEMENT.ICE, 30, 5),
-
-    //   wind_0: new EnemyData('wind_0', EFFECT_ELEMENT.WIND, 4, 1),
-    //   wind_1: new EnemyData('wind_1', EFFECT_ELEMENT.WIND, 8, 2),
-    //   wind_2: new EnemyData('wind_2', EFFECT_ELEMENT.WIND, 12, 4),
-    //   wind_3: new EnemyData('wind_3', EFFECT_ELEMENT.WIND, 30, 6),
-
-    //   iron_0: new EnemyData('iron_0', EFFECT_ELEMENT.WIND, 8, 1),
-    //   iron_1: new EnemyData('iron_1', EFFECT_ELEMENT.ICE, 12, 3),
-    //   iron_2: new EnemyData('iron_2', EFFECT_ELEMENT.WIND, 10, 5),
-    //   iron_3: new EnemyData('iron_3', EFFECT_ELEMENT.ICE, 30, 4),
-    //   iron_4: new EnemyData('iron_4', EFFECT_ELEMENT.ICE, 26, 6),
-    //   iron_5: new EnemyData('iron_5', EFFECT_ELEMENT.FIRE, 42, 6),
-
-    //   boss_0: new EnemyData('boss_0', EFFECT_ELEMENT.FIRE, 60, 8),
-    // }
   }
   get(id) {
     const original = this.enemydatas[id];
-    console.log(original);
     return new EnemyData(original.id, original.type, original.heart_point, original.attack_point, original.option);
   }
 }
@@ -464,7 +461,6 @@ class EnemyData {
       default:
         return EFFECT_ELEMENT.FIRE;
     }
-
   }
   checkIsWeak(type) {
     const isWeak =

@@ -304,7 +304,6 @@ class EditBoard {
 
         const frame = this.scene.add.image(position.x, position.y, frame_type).setDepth(DEPTH.CARD_FRAME);
         frame.name = BOARD_ID.EDIT + index;
-        console.log(frame);
         frame.setScale(this.CARD_SCALE);
         return frame;
     }

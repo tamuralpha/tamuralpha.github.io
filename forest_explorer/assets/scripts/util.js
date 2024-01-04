@@ -100,7 +100,6 @@ export async function fadeoutOverlay(scene) {
 export async function waitForParticles(scene, particle, option = null) {
   const particleImage = option ? option.particle : 'particle';
   const explode = option ? option.explode : true;
-  console.log(explode);
 
   return new Promise(resolve => {
     const analyzeEffectParticle = scene.add.particles(0, 0, particleImage, particle).setDepth(1000);

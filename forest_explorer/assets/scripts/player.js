@@ -6,7 +6,6 @@ export class PlayerData {
     this.heartPoint = 8;
     this.scene = scene;
     this.setDefaultCards();
-    console.log(this.scene)
   }
   // 現状、初期デッキの内容を手動で所持カードに追加している。同期に注意
   setDefaultCards() {

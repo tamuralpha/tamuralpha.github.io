@@ -4,12 +4,13 @@ import { ImageLayer } from './imagelayer.js';
 import * as Util from '../util.js'
 
 export class CardHolder {
-  constructor(scene, deck = null) {
+  constructor(scene, deck = null, stagedata = null) {
     this.scene = scene;
     this.cardDatabase = new CardDatabase(this.scene);
     this.deck = deck;
     this.cards = [];
-    this.createRestCount = 0; // 休息カードの出現回数
+    // this.remainingRestCards = stagedata ? stagedata.remainingRestCards : 0; // 休息カードの出現可能回数
+    this.stagedata = stagedata;
   }
   add(card) {
     this.cards.push(card);
@@ -101,24 +102,24 @@ export class CardHolder {
     for (let index = 0; index < 100; index++) {
       const random = Phaser.Math.Between(0, 100);
 
-      if (random < 35) {
+      if (random < 41) {
         return 0;
       }
       // 上に移動（同じカードが無ければ）
-      else if (random <= 62 && !this.cards.some(card => card.id === 1)) {
+      else if (random <= 53 && !this.cards.some(card => card.id === 1)) {
         return 1;
       }
       // 下に移動（同じカードが無ければ）
-      else if (random <= 77 && !this.cards.some(card => card.id === 2)) {
+      else if (random <= 65 && !this.cards.some(card => card.id === 2)) {
         return 2;
       }
       // テレポート
-      else if (random <= 87) {
+      else if (random <= 80) {
         return 3;
       }
-      // 休息（同じカードが無ければ＆同ステージの休息カード出現回数が５未満）
-      else if (random <= 100 && !this.cards.some(card => card.id === 4) && this.createRestCount < 5) {
-        this.createRestCount++;
+      // 休息（同じカードが無ければ＆同ステージの休息カード出現回数が残っている）
+      else if (random <= 100 && !this.cards.some(card => card.id === 4) && this.stagedata.remainingRestCards > 0) {
+        this.stagedata.restCardCount(1);
         return 4;
       }
     }
@@ -175,7 +176,6 @@ export class CardHolder {
     for (let index = 0; index < 5; index++) {
       if (!this.cards[index]) break;
       promises.push(this.cards[index].imageLayer.slideIn(this.scene, 1000, 0, 200, 70 * index));
-      // 200ピクセル左からスライドイン、1秒の持続時間
     }
     return promises;
   }
