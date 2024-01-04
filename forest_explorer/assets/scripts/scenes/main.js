@@ -413,10 +413,9 @@ var config = {
 // ゲーム全体に整数倍の拡大を行います
 // 単純に現在のウィンドウサイズを検知し、それに収まる範囲で一番大きい倍率になります
 function resizeGame() {
-  const canvas = game.canvas; //, 
+  const canvas = game.canvas;
   const canvasWidth = canvas.width, canvasHeight = canvas.height;
   const windowWidth = window.innerWidth, windowHeight = window.innerHeight;
-  console.log(windowWidth, windowHeight)
 
   // キャンバスとウィンドウのサイズ比を計算
   const scaleX = windowWidth / canvasWidth;
@@ -424,7 +423,7 @@ function resizeGame() {
 
   // 両方の比率のうち小さい方を選択し、整数倍率を求める
   let scale = Math.min(Math.floor(scaleX), Math.floor(scaleY));
-  scale = Math.max(1, scale);
+  scale = Math.max(0.5, scale);
 
   // キャンバスの新しいサイズを設定
   canvas.style.width = (canvasWidth * scale) + 'px';
