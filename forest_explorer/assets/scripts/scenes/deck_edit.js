@@ -316,11 +316,11 @@ class EditBoard {
 
         const text = this.scene.add.text(
             position.x - 64 * this.CARD_SCALE, position.y - 65 * this.CARD_SCALE, writeValue, {
-            fontSize: 22 * this.CARD_SCALE,
+            fontSize: Math.round(22 * this.CARD_SCALE),
             fontFamily: "Pixelify Sans",
             color: "#FFF",
             stroke: '#000',
-            strokeThickness: 3,
+            strokeThickness: 4,
             align: 'center'
         }).setDepth(DEPTH.CARD_TEXT);
         const offset = (28 - text.width) / 2;

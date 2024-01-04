@@ -53,7 +53,7 @@ export class CardHolder {
           fontFamily: "Pixelify Sans",
           color: "#FFF",
           stroke: '#000',  // 縁取りの色
-          strokeThickness: 4  // 縁取りの太さ
+          strokeThickness: 4.4  // 縁取りの太さ
         });
       }
 

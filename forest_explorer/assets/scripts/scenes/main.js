@@ -397,7 +397,7 @@ var config = {
     width: 896,
     height: 512,
   },
-  antialias: false,
+  antialias: true,
   pixelArt: true,
   physics: {
     default: 'arcade',
@@ -408,9 +408,6 @@ var config = {
   // scene: [Game_Scene, DeckEdit_Scene, Battle_Scene, Treasure_Scene, GameOver_Scene, GameClear_Scene, Title_Scene]
   scene: [Title_Scene, Game_Scene, DeckEdit_Scene, Battle_Scene, Treasure_Scene, GameOver_Scene, GameClear_Scene]
 };
-
-// カスタムスケーリング
-// ゲーム全体に整数倍の拡大を行います
 // 単純に現在のウィンドウサイズを検知し、それに収まる範囲で一番大きい倍率になります
 function resizeGame() {
   const canvas = game.canvas;
@@ -421,19 +418,11 @@ function resizeGame() {
   const scaleX = windowWidth / canvasWidth;
   const scaleY = windowHeight / canvasHeight;
 
-  // 両方の比率のうち小さい方を選択し、0.25倍の単位で倍率を求める
+  // 両方の比率のうち小さい方を選択し、それを倍率とする
   let scale = Math.min(scaleX, scaleY);
-  scale = Math.round(scale / 0.25) * 0.25;
 
-  // ウィンドウの幅を超える場合は補正
-  scale = windowWidth > canvasWidth * scale || windowHeight > canvasHeight * scale ? scale - 0.25 : scale;  
-  
-  // 最小倍率は0.5とする
-  scale = Math.max(0.5, scale);
-
-  // キャンバスの新しいサイズを設定
   canvas.style.width = (canvasWidth * scale) + 'px';
-  canvas.style.height = (canvasHeight * scale) + 'px';
+  canvas.style.height = (canvasHeight * scale) + 'px'
 }
 
 window.addEventListener('resize', resizeGame);
