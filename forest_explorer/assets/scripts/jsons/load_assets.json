@@ -212,18 +212,33 @@
       },
       {
         "type": "audio",
-        "key": "stage_1",
-        "url": "assets/music/stage_first.mp3"
+        "key": "stage1_intro",
+        "url": "assets/music/stage1_intro.mp3"
       },
       {
         "type": "audio",
-        "key": "stage_2",
-        "url": "assets/music/stage_second.mp3"
+        "key": "stage1_loop",
+        "url": "assets/music/stage1_loop.mp3"
       },
       {
         "type": "audio",
-        "key": "stage_3",
-        "url": "assets/music/stage_third.mp3"
+        "key": "stage2_intro",
+        "url": "assets/music/stage2_intro.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "stage2_loop",
+        "url": "assets/music/stage2_loop.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "stage3_intro",
+        "url": "assets/music/stage3_intro.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "stage3_loop",
+        "url": "assets/music/stage3_loop.mp3"
       },
       {
         "type": "audio",

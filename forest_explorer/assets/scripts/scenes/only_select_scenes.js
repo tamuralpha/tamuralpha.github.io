@@ -26,7 +26,7 @@ class OnlySelectScene extends Phaser.Scene {
   async fadein(addTargets) {
     addTargets = Array.isArray(addTargets) ? addTargets : [addTargets];
     const fadeinTargets = [this.background].concat(this.buttons).concat(addTargets);
-    this.game.bgm.play();
+    this.game.bgm.play({ loop: true });
     await Util.waitForTween(this, this.getFadeInTweenParameter(fadeinTargets));
   }
   getFadeInTweenParameter(fadeinTargets) {
@@ -170,11 +170,11 @@ export class Title_Scene extends OnlySelectScene {
   showInformation() {
     // テキストを描画
     this.information_text = this.add.text(448, 256,
-    'フレームワーク：Phaser3（https://phaser.io/phaser3）\r\n画像：DALLE-3（ChatGPT）\r\n音楽：甘茶の音楽工房（https://amachamusic.chagasi.com/）\r\n効果音：効果音ラボ（https://soundeffect-lab.info/）',
-    {
-      color: '#ffffff',
-      fontFamily: "Pixelify Sans",
-    }).setDepth(2);
+      'フレームワーク：Phaser3（https://phaser.io/phaser3）\r\n画像：DALLE-3（ChatGPT）\r\n音楽：甘茶の音楽工房（https://amachamusic.chagasi.com/）\r\n効果音：効果音ラボ（https://soundeffect-lab.info/）',
+      {
+        color: '#ffffff',
+        fontFamily: "Pixelify Sans",
+      }).setDepth(2);
 
     this.information_text.x -= this.information_text.width / 2;
     this.information_text.y -= this.information_text.height / 2;
@@ -184,9 +184,9 @@ export class Title_Scene extends OnlySelectScene {
     this.information_rect = this.add.graphics().setDepth(1);
 
     this.information_rect.fillStyle(0x000000, 1);
-    this.information_rect.fillRect(448 - rectSize.width/2, 256 - rectSize.height/2, rectSize.width, rectSize.height);
+    this.information_rect.fillRect(448 - rectSize.width / 2, 256 - rectSize.height / 2, rectSize.width, rectSize.height);
     this.information_rect.lineStyle(2, 0xffffff, 1);
-    this.information_rect.strokeRect(448 - rectSize.width/2, 256 - rectSize.height/2, rectSize.width, rectSize.height);
+    this.information_rect.strokeRect(448 - rectSize.width / 2, 256 - rectSize.height / 2, rectSize.width, rectSize.height);
   }
   createTitleMessage() {
     const text = this.add.text(448, 84, "FOREST EXPLORER", {

@@ -80,18 +80,8 @@ class Game_Scene extends Phaser.Scene {
       return;
     }
 
-    // BGM管理
-    if (this.game.bgmID !== this.stagedata.bgmID) {
-      if (this.game.bgm) this.game.bgm.stop();
-      this.game.bgm = this.sound.add(`stage_${this.stagedata.bgmID}`, { bgmID: this.stagedata.bgmID });
-      this.game.bgm.play();
-      this.game.bgmID = this.stagedata.bgmID;
-    }
-    // else if (this.game.bgmID !== this.stagedata.bgmID) {
-    //   this.game.bgm = this.sound.add(`stage_${this.stagedata.bgmID}`, { bgmID: this.stagedata.bgmID }).play();
-    //   this.game.bgmID = this.stagedata.bgmID;
-    // }
-    
+    this.startBGM();
+
     this.headUpDisplay.create();
     this.headUpDisplay.refreshOnMap();
 
@@ -127,6 +117,29 @@ class Game_Scene extends Phaser.Scene {
     //   // this.isInputActive = true;
     // });
   }
+  // BGM管理
+  startBGM() {
+    if (this.game.bgmID !== this.stagedata.bgmID) {
+      if (this.game.bgm) this.game.bgm.stop();
+
+      // イントロ部分の音源を追加
+      this.game.bgm = this.sound.add(`stage${this.stagedata.bgmID}_intro`);
+
+      // ループする音源を追加（まだ再生はしない）
+      this.loopBGM = this.sound.add(`stage${this.stagedata.bgmID}_loop`, { loop: true });
+
+      // イントロが終わったらループ音源を再生
+      this.game.bgm.on('complete', () => {
+        this.game.bgm = this.loopBGM;
+        this.game.bgm.play();
+      });
+
+      // イントロ部分を再生
+      this.game.bgm.play();
+
+      this.game.bgmID = this.stagedata.bgmID;
+    }
+  }
   async createCards() {
     this.handCardHolder.create(5);
     // すべての createCard プロミスが解決するのを待つ
@@ -157,7 +170,6 @@ class Game_Scene extends Phaser.Scene {
       this.isInputActive = true;
       return;
     }
-
 
     const movedDistance = await this.cardAction(card);
     await this.afterCardAction(card, movedDistance);
