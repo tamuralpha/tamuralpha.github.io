@@ -209,6 +209,141 @@
         "type": "image",
         "key": "gameclear",
         "url": "assets/illust/clear.webp"
+      },
+      {
+        "type": "audio",
+        "key": "stage_1",
+        "url": "assets/music/stage_first.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "stage_2",
+        "url": "assets/music/stage_second.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "stage_3",
+        "url": "assets/music/stage_third.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "theme_1",
+        "url": "assets/music/theme_serious.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "theme_2",
+        "url": "assets/music/theme_silent.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "theme_3",
+        "url": "assets/music/theme_happy.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "damage",
+        "url": "assets/se/damage.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "damage_big",
+        "url": "assets/se/damage_big.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "decide",
+        "url": "assets/se/decide.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "denied",
+        "url": "assets/se/denied.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "enemy_attack",
+        "url": "assets/se/enemy_attack.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "fire_magic",
+        "url": "assets/se/fire_magic.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "heal",
+        "url": "assets/se/heal.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "heal_magic",
+        "url": "assets/se/heal_magic.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "ice_magic",
+        "url": "assets/se/ice_magic.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "pick_card",
+        "url": "assets/se/pick_card.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "scene_change",
+        "url": "assets/se/scene_change.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "spark_magic",
+        "url": "assets/se/spark_magic.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "step",
+        "url": "assets/se/step.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "treasure_get",
+        "url": "assets/se/treasure_get.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "treasure_open",
+        "url": "assets/se/treasure_open.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "vanish",
+        "url": "assets/se/vanish.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "warp",
+        "url": "assets/se/warp.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "deck_edit",
+        "url": "assets/se/deck_edit.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "reset",
+        "url": "assets/se/reset.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "accept",
+        "url": "assets/se/accept.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "analyze",
+        "url": "assets/se/analyze.mp3"
       }
     ]
   }

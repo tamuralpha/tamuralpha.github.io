@@ -15,6 +15,7 @@ class OnlySelectScene extends Phaser.Scene {
     this.createBackground(backgroundImageID);
     this.createButtons(texts);
 
+    if (this.game.bgm) { this.game.bgm.stop() }
     await this.fadein();
 
     this.input.on('pointerdown', async (pointer, gameObject) => {
@@ -25,6 +26,7 @@ class OnlySelectScene extends Phaser.Scene {
   async fadein(addTargets) {
     addTargets = Array.isArray(addTargets) ? addTargets : [addTargets];
     const fadeinTargets = [this.background].concat(this.buttons).concat(addTargets);
+    this.game.bgm.play();
     await Util.waitForTween(this, this.getFadeInTweenParameter(fadeinTargets));
   }
   getFadeInTweenParameter(fadeinTargets) {
@@ -36,17 +38,18 @@ class OnlySelectScene extends Phaser.Scene {
       delay: 100,
     };
   }
-  async pointerDownHandler(pointer, gameObjects) {
-    if (!this.inputActive || gameObjects.length === 0 || !gameObjects[0].name) { return false; }
+  async pointerDownHandler(pointer, gameObjects, isNeedFadeout = true) {
+    if (!this.inputActive || gameObjects.length === 0 || !gameObjects[0].name === undefined) { return false; }
     this.inputActive = false;
 
+    this.sound.play('decide');
     await this.buttonClickReaction(gameObjects);
-    await Util.fadeoutOverlay(this);
+    if (isNeedFadeout) await Util.fadeoutOverlay(this);
     return true;
   }
   async buttonClickReaction(gameObjects) {
     const index = this.buttons.findIndex(gameObject => gameObject === gameObjects[0]) + 1; // buttonは生成時、その上に表示されるtextも1つ後ろに格納される
-    const targets = [gameObjects[0], this.buttons[index]];
+    const targets = index === 0 ? [gameObjects[0]] : [gameObjects[0], this.buttons[index]]; // indexが0の場合、findIndexは-1（失敗）。その場合はクリックしたオブジェクトのみを動かす
 
     const tweenParameter = {
       targets: targets,
@@ -72,7 +75,7 @@ class OnlySelectScene extends Phaser.Scene {
   getButtonsX(texts) {
     const xs = [];
 
-    const space = 64; // 複数のテキストがある場合、その間のスペース
+    const space = 128; // 複数のテキストがある場合、その間のスペース
     const boardWidth = this.textures.get('board').getSourceImage().width + space;
     const totalWidth = boardWidth * texts.length;
     const startX = 448 - totalWidth / 2 + boardWidth / 2;
@@ -94,7 +97,7 @@ class OnlySelectScene extends Phaser.Scene {
       strokeThickness: 6,
       align: 'center',
     }).setAlpha(0).setDepth().setOrigin(0.5, 0.5);
-    
+
     board.name = text;
     board.setInteractive();
 
@@ -106,10 +109,13 @@ export class Title_Scene extends OnlySelectScene {
   constructor() {
     super('Title_Scene');
     this.START_BUTTON = "START"
+    this.INFORMATION_BUTTON = "INFORMATION"
   }
   preload() {
     this.load.image('board', 'assets/icons/board.webp');
     this.load.image('title', 'assets/illust/title.webp');
+    this.load.image('information', 'assets/icons/information.webp');
+    this.load.pack('assetPack', 'assets/scripts/jsons/load_assets.json');
   }
   loadFont() {
     return new Promise((resolve, reject) => {
@@ -134,12 +140,53 @@ export class Title_Scene extends OnlySelectScene {
     await super.create('title', this.START_BUTTON);
   }
   async fadein() {
-    await super.fadein(this.createTitleMessage());
+    this.game.bgm = this.sound.add('theme_2');
+    this.game.bgmID = 'theme_2';
+    await super.fadein([this.createTitleMessage(), this.createInformationButton()]);
   }
   async pointerDownHandler(pointer, gameObjects) {
-    const isSuccessed = await super.pointerDownHandler(pointer, gameObjects);
+    const isSuccessed = await super.pointerDownHandler(pointer, gameObjects, false);
     if (!isSuccessed) return;
-    this.scene.start("Game_Scene", {});
+
+    if (gameObjects[0].name === this.INFORMATION_BUTTON) {
+      this.toggleInformation();
+      super.inputActive = true;
+    }
+    else {
+      await Util.fadeoutOverlay(this);
+      this.scene.start("Game_Scene", {});
+    }
+  }
+  toggleInformation() {
+    if (this.information_text) {
+      this.information_text.destroy();
+      this.information_rect.destroy();
+      this.information_text = null;
+    }
+    else {
+      this.showInformation();
+    }
+  }
+  showInformation() {
+    // テキストを描画
+    this.information_text = this.add.text(448, 256,
+    'フレームワーク：Phaser3（https://phaser.io/phaser3）\r\n画像：DALLE-3（ChatGPT）\r\n音楽：甘茶の音楽工房（https://amachamusic.chagasi.com/）\r\n効果音：効果音ラボ（https://soundeffect-lab.info/）',
+    {
+      color: '#ffffff',
+      fontFamily: "Pixelify Sans",
+    }).setDepth(2);
+
+    this.information_text.x -= this.information_text.width / 2;
+    this.information_text.y -= this.information_text.height / 2;
+
+    // 黒い枠を描画
+    const rectSize = { width: this.information_text.width + 50, height: this.information_text.height + 50 }
+    this.information_rect = this.add.graphics().setDepth(1);
+
+    this.information_rect.fillStyle(0x000000, 1);
+    this.information_rect.fillRect(448 - rectSize.width/2, 256 - rectSize.height/2, rectSize.width, rectSize.height);
+    this.information_rect.lineStyle(2, 0xffffff, 1);
+    this.information_rect.strokeRect(448 - rectSize.width/2, 256 - rectSize.height/2, rectSize.width, rectSize.height);
   }
   createTitleMessage() {
     const text = this.add.text(448, 84, "FOREST EXPLORER", {
@@ -151,6 +198,12 @@ export class Title_Scene extends OnlySelectScene {
     }).setAlpha(0);
     text.x -= text.width / 2;
     return text;
+  }
+  createInformationButton() {
+    const button = this.add.image(854, 42, "information").setAlpha(0);
+    button.setInteractive();
+    button.name = this.INFORMATION_BUTTON;
+    return button;
   }
 }
 export class GameOver_Scene extends OnlySelectScene {
@@ -165,11 +218,14 @@ export class GameOver_Scene extends OnlySelectScene {
     this.inputActive = false;
   }
   async fadein() {
+    this.game.bgm = this.sound.add('theme_1');
+    this.game.bgmID = 'theme_1';
     await super.fadein(this.createGameOverMessage());
   }
   async pointerDownHandler(pointer, gameObjects) {
     const isSuccessed = await super.pointerDownHandler(pointer, gameObjects);
     if (!isSuccessed) return;
+    console.log(gameObjects);
     const startscene = gameObjects[0].name === this.CONTINUE_BUTTON ? 'Game_Scene' : 'Title_Scene';
     this.scene.start(startscene, { playerdata: this.playerdata, currentStage: this.currentStage });
   }
@@ -203,11 +259,13 @@ export class GameClear_Scene extends OnlySelectScene {
     await super.create('gameclear', this.TITLE_BUTTON);
   }
   async fadein() {
+    this.game.bgm = this.sound.add('theme_3');
+    this.game.bgmID = 'theme_3';
     await super.fadein(this.createGameClearMessage());
   }
   async pointerDownHandler(pointer, gameObjects) {
-      const isSuccessed = await super.pointerDownHandler(pointer, gameObjects);
-      if (!isSuccessed) return;
+    const isSuccessed = await super.pointerDownHandler(pointer, gameObjects);
+    if (!isSuccessed) return;
     this.scene.start('Title_Scene');
   }
   createGameClearMessage() {

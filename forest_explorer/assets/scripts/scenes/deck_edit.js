@@ -116,6 +116,7 @@ export class DeckEdit_Scene extends Phaser.Scene {
     addCardFromInventory(index) {
         if (!this.inventoryBoard.checkCanAddIndex(this.carddatabase.get_battle(index).id)) return;
 
+        this.sound.play('deck_edit');;
         const addedCardGameObject = this.editBoard.addNewCard(this.carddatabase.get_battle(index))
         if (addedCardGameObject === null) return;
 
@@ -124,6 +125,7 @@ export class DeckEdit_Scene extends Phaser.Scene {
         this.whenEdit();
     }
     removeCardFromEditBoard(index) {
+        this.sound.play('deck_edit');;
         const cardID = this.editBoard.deckdata.cards[index].data.id;
 
         this.editBoard.removeCard(index);
@@ -133,6 +135,7 @@ export class DeckEdit_Scene extends Phaser.Scene {
     // 編集のリセット
     // ボード上の全てのオブジェクトを破棄し、編集前デッキのデータに基づき再生成します
     resetEdit() {
+        this.sound.play('reset');
         this.editBoard.recreate(this.preEditDeck);
         this.inventoryBoard.recreate();
         this.setListnerToAllCards();
@@ -144,8 +147,13 @@ export class DeckEdit_Scene extends Phaser.Scene {
     }
     // 編集終了、ボードを画面外に下げてから全内容を消去
     async endEdit() {
-        if (this.editBoard.deckdata.cards.length !== 20) { return; } // カードの枚数は20枚でなければならない
+        if (this.editBoard.deckdata.cards.length !== 20) { 
+            this.sound.play('denied'); 
+            ;return; 
+        } // カードの枚数は20枚でなければならない
 
+        const asseptSoundID = this.isReadOnly ? "decide" : "accept";
+        this.sound.play(asseptSoundID);
         await this.panCamera(this.cameras.main.centerX, this.cameras.main.centerY * -4, 500, 'Cubic.easeOut');
         this.game.events.emit('DeckEditCompleted', this.editBoard.getDeck());
         this.editBoard.clear();

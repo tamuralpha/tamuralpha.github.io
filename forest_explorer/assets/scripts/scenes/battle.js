@@ -2,6 +2,7 @@ import { CardHolder } from "../cards/cardholder.js";
 import { DEPTH, EFFECT_ELEMENT } from "../constants.js";
 import { HeadUpDisplay } from '../head-up-display.js'
 import * as Util from '../util.js'
+import * as Effect from '../effects.js'
 
 export class Battle_Scene extends Phaser.Scene {
   constructor() {
@@ -64,15 +65,15 @@ export class Battle_Scene extends Phaser.Scene {
       return;
     }
 
-    await this.executeBattle(card);
-    this.isInputActive = true;
+    const isBattleContinue = await this.executeBattle(card);
+    if (isBattleContinue) this.isInputActive = true;
   }
   async executeBattle(card) {
     this.playerdata.deck.use(card);
     const effects = card.data.effects;
 
     const isBattleEnd = await this.battle(effects);
-    if (isBattleEnd) { this.endBattleScene(); return; }
+    if (isBattleEnd) { this.endBattleScene(); return false; }
 
     this.enemydata.updateTurn();
     this.showEnemyStatusAilment();
@@ -80,6 +81,7 @@ export class Battle_Scene extends Phaser.Scene {
 
     await this.refillHand(card);
     this.headUpDisplay.refreshOnBattle();
+    return true;
   }
   // プレイヤーの行動 => 敵の行動を順に処理
   // 戻り値は『戦闘が終了したか』
@@ -96,285 +98,37 @@ export class Battle_Scene extends Phaser.Scene {
       this.headUpDisplay.refreshOnBattle();
 
       await this.showAttackEffect(effects, this.enemysImage);
-      await this.showDamageEffect(this.enemysImage, damage, isWeak);
+      await Effect.showDamageEffect(this, this.enemysImage, damage, isWeak);
     }
     else {
       this.playerdata.effect(effects);
       this.enemydata.effect(effects);
-      await this.showSpecialEffect(effects);
+      await this.playSpecialTweens(effects);
       this.headUpDisplay.refreshOnBattle();
     }
   }
   async showAttackEffect(effects, target) {
-    const tweens = this.getAttackTweens(effects, target);
+    const tweens = Effect.getAttackTweens(this, effects, target);
     await Promise.all(tweens);
   }
-  getAttackTweens(effects, target) {
-    const element = effects.effect_element;
-    const rank = effects.rank;
-
-    const duration = 500;
-
-    const x = target.x;
-    const y = target.y;
-
+  // Effects.jsへの隔離も考えたものの特殊処理が多すぎて無理だった
+  async playSpecialTweens(effects) {
     const tweens = [];
 
-    switch (element) {
-      case EFFECT_ELEMENT.FIRE:
-        tweens.push(Util.waitForParticles(this,
-          {
-            emitZone: { source: new Phaser.Geom.Circle(x, y, 25 + 10 * rank), quantity: 150 },
-            color: [0xfacc22, 0xf89800, 0xf83600, 0x9f0404],
-            colorEase: 'quad.out',
-            duration: duration,
-            lifespan: duration,
-            scale: { start: 0.70 * rank, end: 0, ease: 'sine.out' },
-            accelerationY: { min: -150, max: -350 },
-            speed: { min: 30 * rank, max: 60 * rank },
-            blendMode: 'ADD',
-            quantity: 350 * rank,
-          }));
-        break;
-      case EFFECT_ELEMENT.ICE:
-        tweens.push(
-          Util.waitForParticles(this, {
-            emitZone: { source: new Phaser.Geom.Circle(x, y, 150), quantity: 32 },
-            duration: duration,
-            lifespan: duration,
-            speed: { min: 10, max: 20 },
-            scale: { start: 0.05, end: 0 },
-            quantity: 1000,
-            blendMode: 'ADD',
-          }));
-        tweens.push(
-          Util.waitForParticles(this, {
-            emitZone: { source: new Phaser.Geom.Circle(x, y, 150), quantity: 6 },
-            duration: duration,
-            lifespan: duration,
-            alpha: { start: 1, end: 0 },
-            scale: { start: 0.5, end: 0.8 },
-            quantity: 6 * rank,
-            frequency: 100,
-            blendMode: 'ADD',
-            emitCallback: (particle) => {
-              particle.angle = Phaser.Math.Between(0, 360);
-            },
-          },
-            { particle: 'effect_ice' }))
-        break;
-      case EFFECT_ELEMENT.WIND:
-        tweens.push(
-          Util.waitForParticles(this,
-            {
-              emitZone: { source: new Phaser.Geom.Circle(x, y, 90 + 15 * rank), quantity: 32 },
-              frame: { frames: [0, 1, 2, 3], cycle: true },
-              duration: duration,
-              lifespan: duration,
-              scale: { start: 0.55 + 0.10 * rank, end: 0 },
-              alpha: { start: 1, end: 0 },
-              blendMode: 'ADD',
-              quantity: 3 * rank,
-              frequency: 100 - 20 * rank,
-              emitCallback: (particle) => {
-                particle.angle = Phaser.Math.Between(0, 360);
-              },
-            },
-            {
-              particle: 'effect_spark_sheet',
-              explode: false,
-            }));
-        break;
-    } // switch終了
-
-    return tweens;
-  }
-  async showSpecialEffect(effects) {
     switch (effects.effect) {
       case "analyze":
-        await Util.waitForParticles(this, {
-          x: this.enemysImage.x,
-          y: this.enemysImage.y,
-          duration: 500,
-          lifespan: 500,
-          scale: { start: 0, end: 2, ease: 'POWER2' },
-          alpha: { start: 1, end: 0, ease: 'POWER2' },
-          quantity: 1,
-          frequency: 120,
-          blendMode: 'ADD'
-        },
-          {
-            particle: `enemy_${this.enemydata.id}`,
-            explode: false,
-          })
+        this.sound.play('analyze');
+        await Effect.playAnalyzeEffect(this, this.enemysImage, `enemy_${this.enemydata.id}`);
         this.showAnalyzeParticle(this.enemysImage, this.enemydata);
         break;
       case 'heal': {
-        await Util.waitForParticles(this, {
-          emitZone: { source: new Phaser.Geom.Circle(this.playersImage.x, this.playersImage.y + this.playersImage.height / 2 - 15, 30), quantity: 150 },
-          color: [0xFFFB8B, 0xFFE49E, 0xEDC13A],
-          colorEase: 'quad.out',
-          duration: 500,
-          lifespan: 500,
-          scale: { start: 0, end: 1, ease: 'sine.out' },
-          alpha: { start: 1, end: 0, ease: 'sine.out' },
-          speed: { min: -90, max: 90 },
-          accelerationY: { min: -600, max: -900 },
-          quantity: 50,
-          frequency: 60,
-          blendMode: 'ADD',
-          emitCallback: (particle) => {
-            particle.angle = Phaser.Math.Between(0, 360);
-          },
-        },
-          {
-            particle: 'particle_p',
-            explode: false,
-          })
-        await this.showDamageEffect(this.playersImage, effects.value * -1, false);
+        this.sound.play('heal_magic');
+        await Effect.playHealEffect(this, this.playersImage);
+        await Effect.showDamageEffect(this, this.playersImage, effects.value * -1, false);
         break;
       }
     }
-  }
-  async enemysAttack() {
-    if (this.enemydata.heartPoint <= 0) { return }
-    this.playerdata.heartPoint -= this.enemydata.attackPoint;
-    const shape4 = new Phaser.Geom.Line(
-      this.playersImage.x - 100, this.playersImage.y - 100,
-      this.playersImage.x + 100, this.playersImage.y + 100);
-
-    await Util.waitForParticles(this, {
-      emitZone: { type: 'edge', source: shape4, quantity: 64, total: 1 },
-      duration: 250 / 1.5,
-      lifespan: 250 / 1.5,
-      scale: { start: 0.4, end: 0 },
-      alpha: { start: 1, end: 0 },
-      quantity: 6,
-      blendMode: 'ADD',
-    },
-      {
-        particle: 'particle_p',
-        explode: false,
-      })
-
-    await this.showDamageEffect(this.playersImage, this.enemydata.attackPoint);
-  }
-  async defeatAnimation() {
-    if (this.enemydata.heartPoint <= 0) {
-      await this.defeatImage(this.enemysImage);
-      return true;
-    }
-    else if (this.playerdata.isFainted()) {
-      await this.defeatImage(this.playersImage);
-      return true;
-    }
-    return false;
-  }
-  // 選んだカードを削除
-  async refillHand(card) {
-    await Promise.all(card.imageLayer.fadeout(this));
-    this.handCardHolder.remove(card);
-    this.handCardHolder.adjustPositions()
-    this.handCardHolder.create(5);
-
-    const slideinTweens = this.handCardHolder.slideIn(4);
-    if (slideinTweens)
-      await Promise.all(slideinTweens);
-  }
-  async showDamageEffect(target, damage, isWeak) {
-    const x = target.x + target.width / 2 - 25;
-    const y = target.y - target.height / 2 - 15
-    const color = this.getDamageEffectColor(damage, isWeak);
-
-    // ダメージテキストを表示し、少しポップする演出
-    const damageText = this.add.text(x, y, Math.abs(damage), {
-      fontSize: 36,
-      fontFamily: "Pixelify Sans",
-      color: color,
-      stroke: '#000',
-      strokeThickness: 4
-    }).setDepth(DEPTH.UI_PLUS);
-
-    const damageTweenParameter = {
-      targets: damageText,
-      y: damageText.y - 15,
-      scale: { from: 1, to: 1.1 },
-      yoyo: true,
-      ease: 'Cubic.easeOut',
-      duration: 250,
-    };
-
-    // ターゲットが赤くなり、点滅する演出（ダメージ０以下の場合は点滅のみ）
-    if (damage >= 0) target.setTint(0xFF0000);
-
-    const flashParameter = {
-      targets: target,
-      alpha: { from: 1, to: 0.5 },
-      ease: 'Linear',
-      duration: 50,
-      yoyo: true,
-      repeat: 1
-    };
-
-    // ターゲットが振動する演出
-    const randomQuakeValue = {
-      x: Phaser.Math.Between(-10, 10) / 10,
-      y: Phaser.Math.Between(-10, 10) / 10
-    }
-
-    const quakeParamerter = {
-      targets: target,
-      x: { from: target.x - randomQuakeValue.x, to: target.x + randomQuakeValue.x },
-      y: { from: target.y - randomQuakeValue.y, to: target.y + randomQuakeValue.y },
-      duration: 50,
-      yoyo: true,
-      repeat: 1
-    };
-
-    const dTween = Util.waitForTween(this, damageTweenParameter);
-    const fTween = damage < 0 ? null : Util.waitForTween(this, flashParameter);
-    const sTween = damage < 0 ? null : Util.waitForTween(this, quakeParamerter);
-
-    // 上記を同時に実行し、まとめて待機
-    await Promise.all([dTween, fTween, sTween]);
-    damageText.destroy();
-    target.setTint(0xFFFFFF);
-  }
-  // ①弱点属性である：赤、②ダメージがマイナスである：緑、③その他：白
-  getDamageEffectColor(damage, isWeak) {
-    let color = isWeak ? '#FF0000' : '#FFFFFF';
-    color = damage < 0 ? '#00FF00' : color;
-
-    return color;
-  }
-  async defeatImage(image) {
-    image.setTint(0xff0000);
-
-    const tweenParameter = {
-      targets: image,
-      alpha: { from: 1, to: 0 },
-      ease: 'Power2',
-      duration: 300,
-      delay: 100,
-    };
-
-    await Util.waitForTween(this, tweenParameter);
-  }
-  // 敵の状態異常アイコンを表示
-  showEnemyStatusAilment() {
-    this.clearEnemyStatusAilment();
-
-    // 現状1つのみだが、当然増やすなら増やし方を考える
-    if (this.enemydata.checkIsAnalyzed()) {
-      const enemysFoot = this.enemysImage.y+this.enemysImage.height/2;
-      const icon = this.add.image(this.enemysImage.x, enemysFoot, 'analyzed').setScale(0.5).setDepth(DEPTH.ENEMY_1);
-      icon.y = icon.y + (icon.height*0.5)/2; // アイコンの位置は敵の足元からアイコン自身の高さ分ズラす
-      this.enemysStatusAilmentIcons.push(icon);
-    }
-  }
-  clearEnemyStatusAilment() {
-    this.enemysStatusAilmentIcons.forEach(icon => icon.destroy());
-    this.enemysStatusAilmentIcons = [];
+    return tweens;
   }
   // 『分析魔法』のエフェクトの表示。シーン中永続的に表示される
   showAnalyzeParticle(target, enemydata) {
@@ -402,6 +156,52 @@ export class Battle_Scene extends Phaser.Scene {
       frequency: 30,
       tint: tint
     }).setDepth(DEPTH.UI_PLUS);
+  }
+  async enemysAttack() {
+    if (this.enemydata.heartPoint <= 0) { return }
+    this.playerdata.heartPoint -= this.enemydata.attackPoint;
+
+    // 斬撃っぽいエフェクト（現状一種）
+    await Effect.enemysAttack(this, this.playersImage);
+    await Effect.showDamageEffect(this, this.playersImage, this.enemydata.attackPoint);
+  }
+  async defeatAnimation() {
+    if (this.enemydata.heartPoint <= 0) {
+      await Effect.defeatImage(this, this.enemysImage);
+      return true;
+    }
+    else if (this.playerdata.isFainted()) {
+      await Effect.defeatImage(this, this.playersImage);
+      return true;
+    }
+    return false;
+  }
+  // 選んだカードを削除
+  async refillHand(card) {
+    await Promise.all(card.imageLayer.fadeout(this));
+    this.handCardHolder.remove(card);
+    this.handCardHolder.adjustPositions()
+    this.handCardHolder.create(5);
+
+    const slideinTweens = this.handCardHolder.slideIn(4);
+    if (slideinTweens)
+      await Promise.all(slideinTweens);
+  }
+  // 敵の状態異常アイコンを表示
+  showEnemyStatusAilment() {
+    this.clearEnemyStatusAilment();
+
+    // 現状1つのみだが、当然増やすなら増やし方を考える
+    if (this.enemydata.checkIsAnalyzed()) {
+      const enemysFoot = this.enemysImage.y + this.enemysImage.height / 2;
+      const icon = this.add.image(this.enemysImage.x, enemysFoot, 'analyzed').setScale(0.5).setDepth(DEPTH.ENEMY_1);
+      icon.y = icon.y + (icon.height * 0.5) / 2; // アイコンの位置は敵の足元からアイコン自身の高さ分ズラす
+      this.enemysStatusAilmentIcons.push(icon);
+    }
+  }
+  clearEnemyStatusAilment() {
+    this.enemysStatusAilmentIcons.forEach(icon => icon.destroy());
+    this.enemysStatusAilmentIcons = [];
   }
   clear() {
     this.handCardHolder.clear();

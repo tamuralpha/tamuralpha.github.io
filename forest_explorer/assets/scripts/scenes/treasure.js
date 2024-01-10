@@ -114,6 +114,7 @@ export class Treasure_Scene extends Phaser.Scene {
       tweens = tweens.concat(this.cards[index].imageLayer.applyTween(this, tweenParameter));
     }
 
+    this.sound.play('decide');
     await Promise.all(tweens);
   }
   async flashSelectedCard(target) {
@@ -153,7 +154,7 @@ export class Treasure_Scene extends Phaser.Scene {
       frequency: -1, // パーティクルを一度だけ発生させる
       emitCallback: (particle) => this.setParticlesVelocity(particle, center)
     }));
-
+    this.sound.play('treasure_get');
     await Promise.all(tweens)
   }
   setParticlesVelocity(particle, center) {

@@ -12,6 +12,7 @@ export class MapObjectHolder {
   async initialize() {
     this.create('player', 0, 1, MAP_OBJECT_TYPE.PLAYER, DEPTH.PLAYER_0);
     await Promise.all(this.popEffectAll());
+    this.scene.sound.play('step'); 
   }
   create(textureId, x, y, type, depth) {
     const position = Util.calcPosition(x, y);
@@ -92,7 +93,7 @@ export class MapObjectHolder {
       targets: target,
       alpha: 1,
       y: '+=20',
-      duration: MOVE_SPEED * 2,
+      duration: MOVE_SPEED,
       ease: 'Power2'
     };
   }
@@ -184,6 +185,7 @@ export class MapObjectHolder {
         ease: 'Quad.inOut'
       };
 
+      this.scene.sound.play('step');
       await Util.waitForTween(this.scene, tweenParameter);
     }
   }
@@ -229,6 +231,7 @@ export class MapObjectHolder {
       duration: MOVE_SPEED, // アニメーションの期間（ミリ秒）
     }
 
+    this.scene.sound.play('warp');
     await Util.waitForTween(this.scene, teleportParameter);
 
     // 表示したら元のオブジェクトをこっそり移動させる
@@ -253,6 +256,7 @@ export class MapObjectHolder {
     mapObject.gameObject.setAlpha(1);
     teleportParameter.alpha = { from: 1, to: 0 }
 
+    this.scene.sound.play('warp');
     await Util.waitForTween(this.scene, teleportParameter)
     teleportEffect.destroy();
   }

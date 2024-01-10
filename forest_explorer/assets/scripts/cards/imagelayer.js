@@ -101,6 +101,10 @@ export class ImageLayer {
         tweens.push(Util.waitForTween(scene, tween));
       }
     }
+    // ディレイを掛けて効果音を再生
+    scene.time.delayedCall(delay, function() {
+      scene.sound.play('pick_card'); 
+    }, [], scene);
     return tweens;
   }
   // 基本的にmove（単純なx, yの移動）での利用を想定
@@ -130,7 +134,7 @@ export class ImageLayer {
         targets: element,
         alpha: 0,
         ease: 'Power2',  // または任意のイージング関数
-        duration: 300,  // アニメーションの持続時間（ミリ秒）
+        duration: 200,  // アニメーションの持続時間（ミリ秒）
       }
       tweens.push(Util.waitForTween(scene, tween));
     };

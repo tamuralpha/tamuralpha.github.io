@@ -17,6 +17,7 @@ export class StageData {
     this.dropRank = data.dropRank;
     this.rareDropRate = data.rareDropRate;
     this.remainingRestCards = data.remainingRestCards;
+    this.bgmID = data.bgmID;
   }
   moveCount(distance) {
     this.toGoalLength -= distance.x;

@@ -78,6 +78,7 @@ export async function fadeinOverlay(scene, overlay) {
     ease: 'Power3'  // イージング関数
   };
 
+  scene.sound.play('scene_change');
   await waitForTween(scene, tweenParameter);
 }
 export async function fadeoutOverlay(scene) {
@@ -94,6 +95,7 @@ export async function fadeoutOverlay(scene) {
     ease: 'Power3'  // イージング関数
   };
 
+  scene.sound.play('scene_change');
   await waitForTween(scene, tweenParameter);
   return overlay;
 }
@@ -116,4 +118,18 @@ export async function waitForParticles(scene, particle, option = null) {
       resolve();
     });
   });
+}
+export function playSoundWithDuration (scene, soundKey, options) {
+  // サウンドを再生する
+  const sound = scene.sound.add(soundKey, options);
+  sound.play();
+
+  // 'duration'オプションがあれば、その期間後にサウンドを停止する
+  if (options && options.duration) {
+    scene.time.delayedCall(options.duration * 1000, function() {
+      sound.stop();
+    }, [], scene);
+  }
+
+  return sound;
 }

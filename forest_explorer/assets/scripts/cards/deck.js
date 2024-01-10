@@ -24,9 +24,11 @@ export class Deck {
     if (notDrawedIndexes.length === 0)
       return -1;
 
+    // ドローされていないカードからランダムな一枚を取得、それにカード記載の数値を元にランダムなパラメータを設定
     const random = Phaser.Math.Between(0, notDrawedIndexes.length - 1);
     const randomIndex = notDrawedIndexes[random];
     this.calcRandomValueWithBonus(this.cards[randomIndex]);
+
     this.statuses[randomIndex].drawed = true;
     return randomIndex;
   }
@@ -56,7 +58,7 @@ export class Deck {
   calcRandomValueWithBonus(card) {
     if (card.effects.rnd_value !== undefined && card.effects.rnd_value) {
       const cardsElement = card.effects.effect_element;
-      const count = this.getCountUsedSameElement(cardsElement);
+      const count = this.getCountSameElement(cardsElement);
       const splited = card.effects.rnd_value.split('-');
 
       card.effects.value = this.biasedRandomInt(parseInt(splited[0]), parseInt(splited[1]), count);
@@ -123,6 +125,10 @@ export class Deck {
   // 指定カードidのカードがデッキ内に何枚入っているかを返します
   getCountInDeck(id) {
     return this.cards.reduce((acc, card) => card.id === id ? acc + 1 : acc, 0);
+  }
+  // 指定したelementと同一のelementの枚数を得ます
+  getCountSameElement(element) {
+    return this.cards.filter(card => card.effects.effect_element === element).length;
   }
   getCountUsedSameElement(element) {
     const usedIndexes = this.getUsedIndexs();

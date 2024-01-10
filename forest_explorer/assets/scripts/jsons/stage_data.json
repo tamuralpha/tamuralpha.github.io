@@ -5,7 +5,8 @@
     "dropRank": 1,
     "rareDropRate": 10,
     "remainingRestCards": 3,
-    "length": 12
+    "length": 12,
+    "bgmID": 1
   },
   "stage2": {
     "enemyIDs": ["fire_0", "ice_0", "wind_0", "iron_0", "ice_1"],
@@ -13,7 +14,8 @@
     "dropRank": 1,
     "rareDropRate": 30,
     "remainingRestCards": 3,
-    "length": 20
+    "length": 20,
+    "bgmID": 1
   },
   "stage3": {
     "enemyIDs": ["fire_1", "ice_1", "wind_1", "iron_2"],
@@ -21,7 +23,8 @@
     "dropRank": 2,
     "rareDropRate": 10,
     "remainingRestCards": 4,
-    "length": 24
+    "length": 24,
+    "bgmID": 2
   },
   "stage4": {
     "enemyIDs": ["iron_0", "iron_1", "iron_2"],
@@ -29,7 +32,8 @@
     "dropRank": 2,
     "rareDropRate": 30,
     "remainingRestCards": 4,
-    "length": 28
+    "length": 28,
+    "bgmID": 2
   },
   "stage5": {
     "enemyIDs": ["iron_2", "iron_3"],
@@ -37,7 +41,8 @@
     "dropRank": 3,
     "rareDropRate": 0,
     "remainingRestCards": 5,
-    "length": 32
+    "length": 32,
+    "bgmID": 3
   },
   "stage6": {
     "enemyIDs": ["fire_2", "ice_2", "wind_2", "iron_3"],
@@ -45,6 +50,7 @@
     "dropRank": 3,
     "rareDropRate": 0,
     "remainingRestCards": 5,
-    "length": 40
+    "length": 40,
+    "bgmID": 3
   }
 }

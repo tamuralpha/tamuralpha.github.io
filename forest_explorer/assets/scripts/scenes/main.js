@@ -2,6 +2,7 @@ import { MAP_OBJECT_TYPE } from '../constants.js';
 import { MapHolder } from '../entitys/mapholder.js'
 import { CardHolder } from '../cards/cardholder.js'
 import { Deck } from '../cards/deck.js';
+import * as Effect from '../effects.js'
 import * as Util from '../util.js'
 import { Title_Scene, GameOver_Scene, GameClear_Scene } from './only_select_scenes.js';
 import { PlayerData } from '../player.js';
@@ -20,7 +21,7 @@ class Game_Scene extends Phaser.Scene {
   }
   preload() {
     this.loadEnemys();
-    this.load.pack('assetPack', 'assets/scripts/jsons/load_assets.json');
+    // this.load.pack('assetPack', 'assets/scripts/jsons/load_assets.json');
     this.load.json('map_card_datas', 'assets/scripts/jsons/map_card_datas.json');
     this.load.json('battle_card_datas', 'assets/scripts/jsons/battle_card_datas.json');
     this.load.json('stage_data', 'assets/scripts/jsons/stage_data.json');
@@ -79,6 +80,18 @@ class Game_Scene extends Phaser.Scene {
       return;
     }
 
+    // BGM管理
+    if (this.game.bgmID !== this.stagedata.bgmID) {
+      if (this.game.bgm) this.game.bgm.stop();
+      this.game.bgm = this.sound.add(`stage_${this.stagedata.bgmID}`, { bgmID: this.stagedata.bgmID });
+      this.game.bgm.play();
+      this.game.bgmID = this.stagedata.bgmID;
+    }
+    // else if (this.game.bgmID !== this.stagedata.bgmID) {
+    //   this.game.bgm = this.sound.add(`stage_${this.stagedata.bgmID}`, { bgmID: this.stagedata.bgmID }).play();
+    //   this.game.bgmID = this.stagedata.bgmID;
+    // }
+    
     this.headUpDisplay.create();
     this.headUpDisplay.refreshOnMap();
 
@@ -98,7 +111,7 @@ class Game_Scene extends Phaser.Scene {
     // // Tキーのオブジェクトを作成
     // let tKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
 
-    // // Tキーが押されたときのイベントリスナー（デバッグ用）
+    // // // Tキーが押されたときのイベントリスナー（デバッグ用）
     // tKey.on('down', async (event) => {
     //   // await this.startGameOverScene();
 
@@ -108,9 +121,9 @@ class Game_Scene extends Phaser.Scene {
     //   // await this.launchDeckEditScene(false);
     //   // this.isInputActive = false;
     //   // await this.launchBattleScene(`enemy_${this.stagedata.bossID}`);
-    //   await this.startGameClaerScene();
+    //   // await this.startGameClaerScene();
     //   // this.cardHolder.clear();
-    //   // this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1 });
+    //   this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1 });
     //   // this.isInputActive = true;
     // });
   }
@@ -170,8 +183,6 @@ class Game_Scene extends Phaser.Scene {
       return;
     }
 
-    // this.endEmit();
-
     // 処理終了後、選んだカードを削除
     await Promise.all(card.imageLayer.fadeout(this));
 
@@ -208,12 +219,17 @@ class Game_Scene extends Phaser.Scene {
       this.playerdata.deck.randomRecover();
       this.headUpDisplay.refreshOnMap();
 
+      const playerImage = this.mapHolder.mapObjectHolder.mapObjects[0].gameObject;
+      await Effect.showDamageEffect(this, playerImage, -Math.ceil(this.currentStageID / 2), false);
+
       await this.mapHolder.moveAllEnemys();
+      this.sound.play('step');
       isOverlapEventDone = await this.overlapEvent();
 
       await this.mapHolder.cleanupMapObjects();
     }
   }
+
   // 横移動が行われた場合、新しい足場を生成
   // 現状クリアイベントをここに記載しているが、不自然なので要修正
   async slideAndCreateScaffolds(movedDistance) {
@@ -324,6 +340,7 @@ class Game_Scene extends Phaser.Scene {
     await this.launchTreasureScene(isBossEnemy);
   }
   async launchDeckEditScene(isReadOnly) {
+    this.sound.play('pick_card');
     this.scene.launch('DeckEdit_Scene', { playersDeck: this.playerdata.deck, cardInventory: this.playerdata.cardInventory, isReadOnly: isReadOnly });
 
     await new Promise(resolve => {
@@ -348,9 +365,9 @@ class Game_Scene extends Phaser.Scene {
   // 基本的にstagedataに基づくRankのアイテムが出現しますが、rareDropRateに応じて一つ上のRankのアイテムがでます
   // isRareDropがtrueだと確実にrareDropになります
   async launchTreasureScene(isRareDrop) {
+    this.sound.play('treasure_open');
     const dropRank = this.stagedata.dropRank;
     const rareDropRate = isRareDrop ? 100 : this.stagedata.rareDropRate;
-    console.log(rareDropRate)
 
     this.scene.launch('Treasure_Scene', { rank: dropRank, rareDropRate: rareDropRate });
 

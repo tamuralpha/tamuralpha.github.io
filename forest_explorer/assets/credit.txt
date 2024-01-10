@@ -1,0 +1,4 @@
+フレームワーク：Phaser3（https://phaser.io/phaser3）
+画像：DALLE-3（ChatGPT）
+音楽：甘茶の音楽工房（https://amachamusic.chagasi.com/）
+効果音：効果音ラボ（https://soundeffect-lab.info/）

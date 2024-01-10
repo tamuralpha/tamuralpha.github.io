@@ -20,10 +20,12 @@ export class MapHolder {
   async initialize() {
     await this.initializeScaffold();
     await this.initializeMapObject();
+    this.scene.sound.play('step'); 
     const before_create = this.mapObjectHolder.mapObjects.length;
     this.mapObjectHolder.randomPopEnemys();
     this.mapObjectHolder.randomPopRewards();
     await Promise.all(this.mapObjectHolder.popEffectAll(before_create));
+    this.scene.sound.play('step'); 
   }
   clear() {
     this.mapObjectHolder.clear();
@@ -64,6 +66,7 @@ export class MapHolder {
     this.mapObjectHolder.randomPopEnemys();
     this.mapObjectHolder.randomPopRewards();
     await Promise.all(this.mapObjectHolder.popEffectAll(before_create));
+    this.scene.sound.play('step');
   }
   async initializeScaffold() {
     this.scaffoldHolder.initialize(this.stagedata.toGoalLength);
