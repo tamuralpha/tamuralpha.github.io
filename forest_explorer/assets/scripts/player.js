@@ -1,9 +1,12 @@
 import { Deck } from "./cards/deck.js";
+import { CONDITION } from "./constants.js";
+import { Condition } from './condition.js'
 
 export class PlayerData {
   // ロードとか？ 初期値をセット
   constructor(scene) {
     this.heartPoint = 8;
+    this.condition = new Condition();
     this.scene = scene;
     this.setDefaultCards();
   }
@@ -13,7 +16,11 @@ export class PlayerData {
       0, 0, 0, 0, 1,
       1, 1, 1, 1, 2,
       2, 2, 2, 2, 3,
-      3, 3, 3, 3, 10]
+      3, 3, 3, 3, 10] 
+      //  this.init_deck = [
+      // 12, 12, 12, 12, 12,
+      // 1, 13, 13, 13, 13,
+      // 1, 14, 14, 14, 14]
     this.deck = new Deck(this.scene);
     this.deck.addFromIdArray(this.init_deck);
     this.cardInventory = new Map();
@@ -37,10 +44,14 @@ export class PlayerData {
     this.toGoalLength = Math.max(this.toGoalLength, 0)
   }
   // カードによる効果を受ける（戦闘中）
+  // 移転を検討すること
   effect(effects) {
     switch(effects.effect) {
       case 'heal':
         this.heartPoint += effects.value;
+        break;
+      case 'charge':
+        this.condition.add(CONDITION.CHARGED, effects.value);
         break;
     }
   }
@@ -60,5 +71,12 @@ export class PlayerData {
     copiedPlayerdata.cardInventory = new Map(this.cardInventory);
     copiedPlayerdata.heartPoint = this.heartPoint;
     return copiedPlayerdata;
+  }
+  useChargedPower() {
+    if (!this.condition.checkHasActiveCondition(CONDITION.CHARGED)) return 0;
+
+    const chargedPower = this.condition.get(CONDITION.CHARGED);
+    this.condition.delete(CONDITION.CHARGED);
+    return chargedPower;
   }
 }

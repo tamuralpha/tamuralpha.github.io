@@ -88,6 +88,36 @@
       },
       {
         "type": "image",
+        "key": "sleeped",
+        "url": "assets/icons/sleeped.webp"
+      },
+      {
+        "type": "image",
+        "key": "cursed",
+        "url": "assets/icons/cursed.webp"
+      },
+      {
+        "type": "image",
+        "key": "charged",
+        "url": "assets/icons/charged.webp"
+      },
+      {
+        "type": "image",
+        "key": "sleep",
+        "url": "assets/icons/sleep.webp"
+      },
+      {
+        "type": "image",
+        "key": "curse",
+        "url": "assets/icons/curse.webp"
+      },
+      {
+        "type": "image",
+        "key": "charge",
+        "url": "assets/icons/charge.webp"
+      },
+      {
+        "type": "image",
         "key": "heart",
         "url": "assets/icons/b_heart_icon.png"
       },
@@ -163,8 +193,23 @@
       },
       {
         "type": "image",
+        "key": "particle_n",
+        "url": "assets/effect/particle.webp"
+      },
+      {
+        "type": "image",
         "key": "particle_p",
         "url": "assets/effect/particle_p.webp"
+      },
+      {
+        "type": "image",
+        "key": "particle_nazo_no_moji",
+        "url": "assets/effect/particle_nazo_no_moji.webp"
+      },
+      {
+        "type": "image",
+        "key": "particle_fog",
+        "url": "assets/effect/particle_fog.webp"
       },
       {
         "type": "image",
@@ -359,6 +404,26 @@
         "type": "audio",
         "key": "analyze",
         "url": "assets/se/analyze.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "dual",
+        "url": "assets/se/dual.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "curse",
+        "url": "assets/se/curse.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "sleep",
+        "url": "assets/se/sleep.mp3"
+      },
+      {
+        "type": "audio",
+        "key": "charge",
+        "url": "assets/se/charge.mp3"
       }
     ]
   }

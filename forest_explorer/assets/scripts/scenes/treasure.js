@@ -26,7 +26,6 @@ export class Treasure_Scene extends Phaser.Scene {
 
     this.isInputActive = true;
   }
-  // 各createCardsはほぼ内容が同一、余裕があれば統合
   async createCards() {
     let promises = [];
 
@@ -35,44 +34,9 @@ export class Treasure_Scene extends Phaser.Scene {
       if (rnd === -1) { return false }
 
       const position = { x: 180 + 268 * index, y: 256 }
-
       const carddata = this.carddatabase.get_battle(rnd);
-      const card_string = `card_battle_${rnd}`;
-      const imageLayer = new ImageLayer();
-      const card = new Card(imageLayer, rnd, carddata);
 
-      const cardValue = card.data.effects.rnd_value;
-      const isValuableCard = cardValue !== null && cardValue !== undefined;
-      const frame_type = isValuableCard ? 'frame' : 'n_frame';
-
-      const image = this.add.image(position.x, position.y, card_string);
-      const frame = this.add.image(position.x, position.y, frame_type);
-      const maskShape = this.make.graphics();
-      let value;
-
-      if (isValuableCard) {
-        value = this.add.text(position.x - 118, position.y - 189, cardValue, {
-          fontSize: 42,
-          fontFamily: "Pixelify Sans",
-          color: "#FFF",
-          stroke: '#000',  // 縁取りの色
-          strokeThickness: 8  // 縁取りの太さ
-        });
-      }
-
-      // 加工処理
-      maskShape.fillStyle(0x000);
-      maskShape.fillRect(position.x - 116, position.y - 180, 232, 360);
-
-      image.setScale(1)
-      frame.setScale(2)
-      image.setMask(maskShape.createGeometryMask());
-
-      imageLayer.addItems([frame, image, value, maskShape]);
-      imageLayer.saveInitialPositions();
-
-      frame.setInteractive();
-      frame.name = index;
+      const card = Util.craeteCard(this, position, index, carddata, 1, true, true);
       this.cards.push(card);
       promises = promises.concat(this.slideIn(index));
     }
@@ -216,7 +180,11 @@ export class Treasure_Scene extends Phaser.Scene {
         cardID = id;
       }
       else {
-        const effectMagicList = [0, 10];
+        // 補助魔法はランダムランクアップしない
+        let effectMagicList = [0, 10, 11];
+        if (this.rank > 1) effectMagicList = effectMagicList.concat([12, 13]);
+        if (this.rank > 2) effectMagicList.push(14);
+
         const index = Phaser.Math.Between(0, effectMagicList.length - 1);
 
         cardID = effectMagicList[index];

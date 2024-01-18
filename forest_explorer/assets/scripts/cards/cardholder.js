@@ -9,8 +9,8 @@ export class CardHolder {
     this.cardDatabase = new CardDatabase(this.scene);
     this.deck = deck;
     this.cards = [];
-    // this.remainingRestCards = stagedata ? stagedata.remainingRestCards : 0; // 休息カードの出現可能回数
     this.stagedata = stagedata;
+    this.isBattleScene = this.deck !== null; // マップ画面と戦闘画面の両方で使うが処理が異なるため識別が必要、デッキの有無で判定
   }
   add(card) {
     this.cards.push(card);
@@ -27,49 +27,18 @@ export class CardHolder {
     this.cards = [];
   }
   create(repeat) {
+    console.log(this.isBattleScene)
+
     for (let index = this.cards.length; index < repeat; index++) {
-      const rnd = this.getRandomCard();
+      const rnd = this.getRandomCardFromStore();
       if (rnd === -1) { return false }
 
       const position = Util.calcHandCardPositon(index);
 
-      const carddata = this.deck === null ? this.cardDatabase.get(rnd) : this.cardDatabase.get_battle(rnd);
-      const card_string = this.deck === null ? `card_${rnd}` : `card_battle_${rnd}`;
-      const imageLayer = new ImageLayer();
-      const card = new Card(imageLayer, rnd, carddata);
+      const carddata = this.isBattleScene ? this.cardDatabase.get_battle(rnd) : this.cardDatabase.get(rnd);
+      const card = Util.craeteCard(this.scene, position, index, carddata, 0.5, false, this.isBattleScene);
 
-      const cardValue = card.data.effects.value;
-      const isValuableCard = cardValue !== null && cardValue !== undefined;
-      const frame_type = isValuableCard ? 'frame' : 'n_frame';
-
-      const image = this.scene.add.image(position.x, position.y, card_string);
-      const frame = this.scene.add.image(position.x, position.y, frame_type);
-      const maskShape = this.scene.make.graphics();
-      let value;
-
-      if (isValuableCard) {
-        value = this.scene.add.text(position.x - 50, position.y - 95, cardValue, {
-          fontSize: 22,
-          fontFamily: "Pixelify Sans",
-          color: "#FFF",
-          stroke: '#000',  // 縁取りの色
-          strokeThickness: 4.4  // 縁取りの太さ
-        });
-      }
-
-      // 加工処理
-      maskShape.fillStyle(0x000);
-      maskShape.fillRect(position.x - 58, position.y - 90, 116, 180);
-
-      image.setScale(0.5);
-      image.setMask(maskShape.createGeometryMask());
-
-      imageLayer.addItems([frame, image, value, maskShape]);
-      imageLayer.saveInitialPositions();
-
-      // frameにドラッグイベントを追加
-      frame.setInteractive();
-      // this.scene.input.setDraggable(frame);
+      this.scene.input.setDraggable(card.getFrame());
       this.add(card);
     }
 
@@ -77,8 +46,8 @@ export class CardHolder {
   }
   // 一定の出現アルゴリズムを元にランダムなカードIDを返します
   // デッキが存在していればその中から
-  getRandomCard() {
-    if (this.deck !== null)
+  getRandomCardFromStore() {
+    if (this.isBattleScene)
       return this.getRandomCardIDOnBattle();
     else
       return this.getRandomCardIDOnMap();
@@ -144,28 +113,30 @@ export class CardHolder {
     }
 
     if (returnindex === -1) return null;
-
-    const selectedFrame = this.cards[returnindex].imageLayer.getFrame();
+    return this.cards[returnindex];
+  }
+  pickUpEffectToHandCard(card) {
+    const selectedFrame = card.imageLayer.getFrame();
     const tweenParameter = {
       x: selectedFrame.x,
       y: selectedFrame.y - 25,
       duration: 50,
     }
 
-    this.cards[returnindex].imageLayer.applyTween(this.scene, tweenParameter);
-    return this.cards[returnindex];
+    return card.imageLayer.applyTween(this.scene, tweenParameter);
   }
   adjustPositions() {
-    const tweens = [];
+    let tweens = [];
 
     for (let i = 0; i < this.cards.length; i++) {
+      console.log(i);
       const tweenParameter = {
         x: Util.calcHandCardPositon(i).x,
         y: Util.calcHandCardPositon(i).y,
-        duration: 500,
+        duration: 250,
         ease: 'Power2',
       };
-      tweens.push(this.cards[i].imageLayer.applyTween(this.scene, tweenParameter));
+      tweens = tweens.concat(this.cards[i].imageLayer.applyTween(this.scene, tweenParameter));
     }
     return tweens;
   }

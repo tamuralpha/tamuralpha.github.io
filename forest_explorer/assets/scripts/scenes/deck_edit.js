@@ -7,7 +7,7 @@ import { Deck } from "../cards/deck.js";
 export class DeckEdit_Scene extends Phaser.Scene {
     constructor() {
         super({ key: 'DeckEdit_Scene' });
-        this.SWIPE_THRESHOLD = 50; // スワイプと見なす最小距離
+        this.SWIPE_THRESHOLD = 15; // スワイプと見なす最小距離
         this.editBoard = new EditBoard(this);
     }
     // マップシーンから渡されたデータを受け取る
@@ -83,6 +83,10 @@ export class DeckEdit_Scene extends Phaser.Scene {
 
         const isInInventoryBoard = Phaser.Geom.Rectangle.Contains(this.inventoryBoard.viewRect, pointer.x, pointer.y)
         if (!isInInventoryBoard) { return }
+
+        // 移動量が一定以下ならダメ
+        const dy = Math.abs(pointer.y - this.swipeStart.y);
+        if (dy < this.SWIPE_THRESHOLD) {return;}
 
         this.inventoryBoard.container.y += pointer.velocity.y;
         this.inventoryBoard.container.y = Phaser.Math.Clamp(this.inventoryBoard.container.y, -72 * this.inventoryBoard.cards.size + 360, 0);
@@ -192,6 +196,7 @@ export class DeckEdit_Scene extends Phaser.Scene {
     }
     isMovingVertical(pointer) {
         const vector = this.getSwipeVector(this.swipeStart, { x: pointer.x, y: pointer.y });
+        console.log(vector);
         return vector === VECTOR.UP || vector === VECTOR.DOWN;
     }
     setListnerToAllCards() {

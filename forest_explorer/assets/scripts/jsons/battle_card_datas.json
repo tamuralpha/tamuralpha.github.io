@@ -119,9 +119,33 @@
     {
       "id": 11,
       "name": "二重詠唱",
-      "detail": "次の攻撃が二回行えます。",
+      "detail": "このカードに加え、攻撃・補助のカードを１枚づつ使えます。",
       "effects": {
         "effect": "dual"
+      }
+    },
+    {
+      "id": 12,
+      "name": "魔力増幅",
+      "detail": "デッキの上から２枚の攻撃力を次の攻撃に加えます。",
+      "effects": {
+        "effect": "charge"
+      }
+    },
+    {
+      "id": 13,
+      "name": "呪縛",
+      "detail": "敵の行動がランダムで失敗するようになります。",
+      "effects": {
+        "effect": "curse"
+      }
+    },
+    {
+      "id": 14,
+      "name": "睡眠魔法",
+      "detail": "２～４ターンの間、敵が眠ります。",
+      "effects": {
+        "effect": "sleep"
       }
     }
   ]

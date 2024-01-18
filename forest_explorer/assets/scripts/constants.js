@@ -29,6 +29,12 @@ export const EFFECT_ELEMENT = {
   ICE: "ice",
   WIND: "wind"
 }
+export const CONDITION = {
+  SLEEPED: "sleeped",
+  CURSED: "cursed",
+  ANALYZED: "analyzed",
+  CHARGED: "charged"
+}
 export const MAP_OBJECT_TYPE = {
   NONE: 0,
   PLAYER: 1,

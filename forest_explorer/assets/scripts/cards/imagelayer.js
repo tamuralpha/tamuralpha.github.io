@@ -32,6 +32,18 @@ export class ImageLayer {
   getName() {
     return this.getFrame().name;
   }
+  setName(name) {
+    this.getFrame().name = name;
+  }
+  checkIsInteractive() {
+    return this.getFrame().input && this.getFrame().input.enabled;
+  }
+  setInteractive() {
+    this.getFrame().setInteractive();
+  }
+  removeInteractive() {
+    this.getFrame().removeInteractive();
+  }
   saveInitialPositions() {
     this.memorized_positions = [];
 
@@ -102,8 +114,8 @@ export class ImageLayer {
       }
     }
     // ディレイを掛けて効果音を再生
-    scene.time.delayedCall(delay, function() {
-      scene.sound.play('pick_card'); 
+    scene.time.delayedCall(delay, function () {
+      scene.sound.play('pick_card');
     }, [], scene);
     return tweens;
   }
@@ -123,6 +135,7 @@ export class ImageLayer {
       iTweenParameter.y += item.y - this.getFrame().y;
       tweens.push(Util.waitForTween(scene, iTweenParameter))
     }
+
     return tweens;
   }
   fadeout(scene) {

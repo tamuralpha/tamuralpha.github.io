@@ -37,7 +37,7 @@ class Game_Scene extends Phaser.Scene {
     }
 
     // カード画像をロード
-    for (let index = 0; index < 12; index++) {
+    for (let index = 0; index < 15; index++) {
       this.load.image(`card_battle_${index}`, `assets/card/battle/${index}.png`);
     }
   }
@@ -98,24 +98,25 @@ class Game_Scene extends Phaser.Scene {
     // this.createHandParticles.call(this);
     this.isInputActive = true;
 
-    // // Tキーのオブジェクトを作成
-    // let tKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
+    // Tキーのオブジェクトを作成
+    let tKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
 
-    // // // Tキーが押されたときのイベントリスナー（デバッグ用）
-    // tKey.on('down', async (event) => {
-    //   // await this.startGameOverScene();
+    // // Tキーが押されたときのイベントリスナー（デバッグ用）
+    tKey.on('down', async (event) => {
+      // await this.launchTreasureScene(false);
+      // await this.startGameOverScene();
 
-    //   // await this.launchTreasureScene();
-    //   // console.log(this.mapHolder.mapObjectHolder.mapObjects);
-    //   // シーンBを重ねる
-    //   // await this.launchDeckEditScene(false);
-    //   // this.isInputActive = false;
-    //   // await this.launchBattleScene(`enemy_${this.stagedata.bossID}`);
-    //   // await this.startGameClaerScene();
-    //   // this.cardHolder.clear();
-    //   this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1 });
-    //   // this.isInputActive = true;
-    // });
+      // await this.launchTreasureScene();
+      // console.log(this.mapHolder.mapObjectHolder.mapObjects);
+      // シーンBを重ねる
+      // await this.launchDeckEditScene(false);
+      // this.isInputActive = false;
+      // await this.launchBattleScene(`enemy_${this.stagedata.bossID}`);
+      // await this.startGameClaerScene();
+      // this.cardHolder.clear();
+      // this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1 });
+      // this.isInputActive = true;
+    });
   }
   // BGM管理
   startBGM() {
@@ -170,6 +171,7 @@ class Game_Scene extends Phaser.Scene {
       this.isInputActive = true;
       return;
     }
+    this.handCardHolder.pickUpEffectToHandCard(card);
 
     const movedDistance = await this.cardAction(card);
     await this.afterCardAction(card, movedDistance);

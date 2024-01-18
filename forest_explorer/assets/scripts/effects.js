@@ -40,7 +40,7 @@ export async function showDamageEffect(scene, target, damage, isWeak) {
 
   // ターゲットが振動する演出
   let quakePower = isBigDamage ? 10 : 20;
-  quakePower = damage < 0 ? 0 : quakePower;
+  quakePower = damage <= 0 ? 0 : quakePower;
 
   const randomQuakeValue = {
     x: Phaser.Math.Between(-quakePower, quakePower) / 10,
@@ -63,11 +63,32 @@ export async function showDamageEffect(scene, target, damage, isWeak) {
   // 上記を同時に実行し、まとめて待機
   let damage_se = isBigDamage ? 'damage' : 'damage_big';
   damage_se = damage < 0 ? 'heal' : damage_se;
-  scene.sound.play(damage_se);
+
+  console.log(damage);
+  if (damage !== 0) scene.sound.play(damage_se);
 
   await Promise.all([dTween, fTween, sTween]);
   damageText.destroy();
   target.setTint(0xFFFFFF);
+}
+export async function flashCharacter(scene, target) {
+  const flashImage = scene.add.image(target.x, target.y, target.texture.key);
+  flashImage.setTintFill(0xFFFFFF);
+  flashImage.scaleX = target.scaleX;
+  flashImage.setAlpha(0);
+  flashImage.setDepth(target.depth + 1);
+  console.log(flashImage);
+
+  const flashParameter = {
+    targets: flashImage,
+    alpha: { from: 0, to: 1 },
+    ease: 'Linear',
+    duration: 250,
+    yoyo: true
+  };
+
+  await Util.waitForTween(scene, flashParameter);
+  flashImage.destroy();
 }
 // ①弱点属性である：赤、②ダメージがマイナスである：緑、③その他：白
 function getDamageEffectColor(damage, isWeak) {
@@ -214,6 +235,23 @@ export async function playAnalyzeEffect(scene, target, targetID) {
       explode: false,
     });
 }
+export function createAnalyzeEffect(scene, target, tint) {
+  scene.add.particles(0, 0, 'particle_p', {
+    emitZone: {
+      type: 'edge',
+      source: new Phaser.Geom.Ellipse(target.x, target.y, target.width + 25, target.height + 25),
+      quantity: 64,
+      total: 1
+    },
+    scale: { start: 0.3, end: 0.1 },
+    blendMode: 'ADD',
+    lifespan: 600,
+    quantity: 1,
+    alpha: { start: 1, end: 0.5 },
+    frequency: 30,
+    tint: tint
+  }).setDepth(DEPTH.UI_PLUS);
+}
 export async function playHealEffect(scene, target) {
   await Util.waitForParticles(scene, {
     emitZone: { source: new Phaser.Geom.Circle(target.x, target.y + target.height / 2 - 15, 30), quantity: 150 },
@@ -236,4 +274,152 @@ export async function playHealEffect(scene, target) {
       particle: 'particle_p',
       explode: false,
     });
+}
+export async function playChargeEffect(scene, target) {
+  const tweens = [];
+  const colors = [0xFFB6C1, 0xADD8E6, 0x90EE90];
+
+  tweens.push(Util.waitForParticles(scene, {
+    emitZone: { type: 'edge', source: new Phaser.Geom.Circle(target.x, target.y, 120), quantity: 36 },
+    duration: 500,
+    lifespan: 500,
+    scale: { start: 0.8, end: 0.25, ease: 'sine.out' },
+    moveToX: target.x,
+    moveToY: target.y,
+    moveTo: true,
+    frequency: 125,
+    quantity: 36,
+    tint: colors,
+    emitCallback: (particle) => {
+      particle.x += Phaser.Math.Between(-3, 3);
+      particle.y += Phaser.Math.Between(-3, 3);
+    },
+  },
+    {
+      particle: 'particle',
+      explode: false,
+    }));
+  tweens.push(Util.waitForParticles(scene, {
+    emitZone: { source: new Phaser.Geom.Circle(target.x, target.y, 5), quantity: 5 },
+    duration: 500,
+    lifespan: 500,
+    scale: { start: 0, end: 0.6, ease: 'sine.out' },
+    alpha: { start: 0.2, end: 0.5, ease: 'sine.out' },
+    frequency: 125,
+    quantity: 15,
+    tint: colors,
+  },
+    {
+      particle: 'particle',
+      explode: false,
+    }));
+  await Promise.all(tweens);
+}
+export async function playSleepEffect(scene, target) {
+  await Util.waitForParticles(scene, {
+    emitZone: { source: new Phaser.Geom.Circle(target.x, target.y, 80), quantity: 150 },
+    color: [0xEEF8F5, 0xD9F3FA],
+    colorEase: 'quad.out',
+    duration: 1000,
+    lifespan: 1000,
+    scale: { start: 1, end: 1.2, ease: 'sine.out' },
+    alpha: { start: 0.5, end: 0, ease: 'sine.out' },
+    speed: { min: -20, max: 20 },
+    quantity: 120,
+    blendMode: 'ADD',
+  },
+    {
+      particle: 'particle_fog',
+      explode: true,
+    });
+}
+export async function playCurseEffect(scene, target) {
+  const tweens = [];
+  tweens.push(Util.waitForParticles(scene, {
+    emitZone: { source: new Phaser.Geom.Circle(target.x, target.y + target.height / 2 - 15, 30), quantity: 150 },
+    color: [0x4B0082, 0x006400, 0x8B0000, 0x00008B],
+    colorEase: 'quad.out',
+    duration: 500,
+    lifespan: 500,
+    scale: { start: 0, end: 1, ease: 'sine.out' },
+    alpha: { start: 1, end: 0, ease: 'sine.out' },
+    speed: { min: -20, max: 20 },
+    accelerationX: { min: -500, max: 500 },
+    accelerationY: { min: -100, max: -300 },
+    quantity: 150,
+    frequency: 60,
+    blendMode: 'NORMAL',
+    emitCallback: (particle) => {
+      particle.angle = Phaser.Math.Between(0, 360);
+    },
+  },
+    {
+      particle: 'particle_fog',
+      explode: false,
+    }));
+  tweens.push(Util.waitForParticles(scene, {
+    emitZone: { source: new Phaser.Geom.Circle(target.x, target.y, 80), quantity: 150 },
+    color: [0x4B0082, 0x006400, 0x8B0000, 0x00008B],
+    colorEase: 'quad.out',
+    duration: 500,
+    lifespan: 250,
+    scale: { start: 0.5, end: 1, ease: 'sine.out' },
+    alpha: { start: 1, end: 0, ease: 'sine.out' },
+    accelerationX: { min: -60, max: 50 },
+    accelerationY: { min: -60, max: -90 },
+    speed: { min: -20, max: 20 },
+    quantity: 16,
+    frequency: 170,
+    blendMode: 'NORMAL',
+    emitCallback: (particle) => {
+      // particle.angle = Phaser.Math.Between(0, 360);
+    },
+  },
+    {
+      particle: 'particle_nazo_no_moji',
+      explode: false,
+    }));
+  await Promise.all(tweens);
+}
+export async function handleSpecialAttackEffect(scene, effects) {
+  const effectFunctions = {
+    'heal': handleHealEffect,
+    'analyze': handleAnalyzeEffect,
+    'charge': handleChargeEffect,
+    'dual': handleDualEffect,
+    'curse': handleCurseEffect,
+    'sleep': handleSleepEffect
+  };
+
+  if (effectFunctions[effects.effect]) {
+    return await effectFunctions[effects.effect](scene, effects);
+  }
+}
+async function handleHealEffect(scene, effects) {
+  scene.sound.play('heal_magic');
+  await playHealEffect(scene, scene.playersImage);
+  await showDamageEffect(scene, scene.playersImage, effects.value * -1, false);
+
+}
+async function handleAnalyzeEffect(scene, effects) {
+  scene.sound.play('analyze');
+  await playAnalyzeEffect(scene, scene.enemysImage, `enemy_${scene.enemydata.id}`);
+  scene.showAnalyzeParticle(scene.enemysImage, scene.enemydata);
+}
+async function handleChargeEffect(scene, effects) {
+  scene.sound.play('charge');
+  await playChargeEffect(scene, scene.playersImage);
+  await showDamageEffect(scene, scene.playersImage, effects.value * -1, false);
+}
+async function handleDualEffect(scene, effects) {
+  scene.sound.play('dual');
+  await flashCharacter(scene, scene.playersImage);
+}
+async function handleCurseEffect(scene, effects) {
+  scene.sound.play('curse');
+  await playCurseEffect(scene, scene.enemysImage);
+}
+async function handleSleepEffect(scene, effects) {
+  scene.sound.play('sleep');
+  await playSleepEffect(scene, scene.enemysImage);
 }

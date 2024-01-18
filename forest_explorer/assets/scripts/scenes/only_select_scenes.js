@@ -17,7 +17,6 @@ class OnlySelectScene extends Phaser.Scene {
 
     if (this.game.bgm) { this.game.bgm.stop() }
     await this.fadein();
-
     this.input.on('pointerdown', async (pointer, gameObject) => {
       await this.pointerDownHandler(pointer, gameObject);
     });
@@ -39,17 +38,18 @@ class OnlySelectScene extends Phaser.Scene {
     };
   }
   async pointerDownHandler(pointer, gameObjects, isNeedFadeout = true) {
-    if (!this.inputActive || gameObjects.length === 0 || !gameObjects[0].name === undefined) { return false; }
+    if (!this.inputActive || gameObjects.length === 0 || gameObjects[0].name === undefined) { return null; }
+    const target = this.children.getAll().find(gameObject => gameObject === gameObjects[0]); // 非同期のため、連続クリックなのでgameObjectsの内容が置き換わることがある。ので別口で取得。
     this.inputActive = false;
 
     this.sound.play('decide');
-    await this.buttonClickReaction(gameObjects);
+    await this.buttonClickReaction(target);
     if (isNeedFadeout) await Util.fadeoutOverlay(this);
-    return true;
+    return target;
   }
-  async buttonClickReaction(gameObjects) {
-    const index = this.buttons.findIndex(gameObject => gameObject === gameObjects[0]) + 1; // buttonは生成時、その上に表示されるtextも1つ後ろに格納される
-    const targets = index === 0 ? [gameObjects[0]] : [gameObjects[0], this.buttons[index]]; // indexが0の場合、findIndexは-1（失敗）。その場合はクリックしたオブジェクトのみを動かす
+  async buttonClickReaction(target) {
+    const index = this.buttons.findIndex(gameObject => gameObject === target) + 1; // buttonは生成時、その上に表示されるtextも1つ後ろに格納される
+    const targets = index === 0 ? [target] : [target, this.buttons[index]]; // indexが0の場合、findIndexは-1（失敗）。その場合はクリックしたオブジェクトのみを動かす
 
     const tweenParameter = {
       targets: targets,
@@ -57,7 +57,9 @@ class OnlySelectScene extends Phaser.Scene {
       yoyo: true,
       duration: 50
     };
+    console.log(target);
     await Util.waitForTween(this, tweenParameter);
+    console.log(target);
   }
   createBackground(imageID) {
     this.background = this.add.image(448, 256, imageID).setAlpha(0);
@@ -145,10 +147,10 @@ export class Title_Scene extends OnlySelectScene {
     await super.fadein([this.createTitleMessage(), this.createInformationButton()]);
   }
   async pointerDownHandler(pointer, gameObjects) {
-    const isSuccessed = await super.pointerDownHandler(pointer, gameObjects, false);
-    if (!isSuccessed) return;
+    const target = await super.pointerDownHandler(pointer, gameObjects, false);
+    if (!target) return;
 
-    if (gameObjects[0].name === this.INFORMATION_BUTTON) {
+    if (target.name === this.INFORMATION_BUTTON) {
       this.toggleInformation();
       super.inputActive = true;
     }
@@ -223,9 +225,8 @@ export class GameOver_Scene extends OnlySelectScene {
     await super.fadein(this.createGameOverMessage());
   }
   async pointerDownHandler(pointer, gameObjects) {
-    const isSuccessed = await super.pointerDownHandler(pointer, gameObjects);
-    if (!isSuccessed) return;
-    console.log(gameObjects);
+    const target = await super.pointerDownHandler(pointer, gameObjects);
+    if (!target) return;
     const startscene = gameObjects[0].name === this.CONTINUE_BUTTON ? 'Game_Scene' : 'Title_Scene';
     this.scene.start(startscene, { playerdata: this.playerdata, currentStage: this.currentStage });
   }
@@ -264,8 +265,8 @@ export class GameClear_Scene extends OnlySelectScene {
     await super.fadein(this.createGameClearMessage());
   }
   async pointerDownHandler(pointer, gameObjects) {
-    const isSuccessed = await super.pointerDownHandler(pointer, gameObjects);
-    if (!isSuccessed) return;
+    const target = await super.pointerDownHandler(pointer, gameObjects);
+    if (!target) return;
     this.scene.start('Title_Scene');
   }
   createGameClearMessage() {

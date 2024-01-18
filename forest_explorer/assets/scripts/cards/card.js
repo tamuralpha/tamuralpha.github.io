@@ -13,4 +13,19 @@ export class Card {
   isVerticalMove() {
     return this.data.effects.effect.includes("down_move") || this.data.effects.effect.includes("up_move");
   }
+  checkIsInteractive() {
+    return this.imageLayer.checkIsInteractive();
+  }
+  setName(name) {
+    this.imageLayer.setName(name);
+  }
+  getFrame() {
+    return this.imageLayer.getFrame();
+  }
+  setInteractive() {
+    this.imageLayer.setInteractive();
+  }
+  removeInteractive() {
+    this.imageLayer.removeInteractive();
+  }
 }

@@ -1,3 +1,49 @@
+import { ImageLayer } from "./cards/imagelayer.js";
+import { Card } from "./cards/card.js";
+
+export function craeteCard(scene, position, name, carddata, scale, showRandomValue = true, isBattle = false) {
+  console.log(carddata);
+  const card_id = carddata.id;
+  const card_string = isBattle ? `card_battle_${card_id}` : `card_${card_id}`;
+  const imageLayer = new ImageLayer();
+  const card = new Card(imageLayer, card_id, carddata);
+
+  const cardValue = showRandomValue ? card.data.effects.rnd_value : card.data.effects.value;
+  const isValuableCard = cardValue !== null && cardValue !== undefined;
+  const frame_type = isValuableCard ? 'frame' : 'n_frame';
+
+  const image = scene.add.image(position.x, position.y, card_string);
+  const frame = scene.add.image(position.x, position.y, frame_type);
+  const maskShape = scene.make.graphics();
+  let value;
+
+  if (isValuableCard) {
+    const textOffset = { x:  ((140 * scale) - 20), y: 190 * scale };
+    value = scene.add.text(position.x - textOffset.x, position.y - textOffset.y, cardValue, {
+      fontSize: 42 * scale,
+      fontFamily: "Pixelify Sans",
+      color: "#FFF",
+      stroke: '#000',  // 縁取りの色
+      strokeThickness: 8 * scale  // 縁取りの太さ
+    });
+  }
+
+  // 加工処理
+  maskShape.fillStyle(0x000);
+  maskShape.fillRect(position.x - 116*scale, position.y - 180*scale, 232*scale, 360*scale); // テクスチャサイズに基づく加工のため、変更余地あり？
+
+  image.setScale(scale)
+  frame.setScale(scale * 2)
+  image.setMask(maskShape.createGeometryMask());
+
+  imageLayer.addItems([frame, image, value, maskShape]);
+  imageLayer.saveInitialPositions();
+
+  card.setInteractive();
+  card.setName(name);
+  return card;
+}
+
 // EdgeZoneの範囲からランダムポイントを生成するためだけのクラス
 export class RandomEdgeZone extends Phaser.GameObjects.Particles.Zones.RandomZone {
   constructor(scene, x, y, width, height, innerWidth, innerHeight) {
@@ -119,17 +165,37 @@ export async function waitForParticles(scene, particle, option = null) {
     });
   });
 }
-export function playSoundWithDuration (scene, soundKey, options) {
+export function playSoundWithDuration(scene, soundKey, options) {
   // サウンドを再生する
   const sound = scene.sound.add(soundKey, options);
   sound.play();
 
   // 'duration'オプションがあれば、その期間後にサウンドを停止する
   if (options && options.duration) {
-    scene.time.delayedCall(options.duration * 1000, function() {
+    scene.time.delayedCall(options.duration * 1000, function () {
       sound.stop();
     }, [], scene);
   }
 
   return sound;
+}
+// export function createObservableVariable (variableName) {
+//   return new ObservableVariable (variableName);
+// }
+export class ObservableVariable {
+  constructor(variableName) {
+    this.variableName = variableName;
+  }
+
+  triggerChange(newValue) {
+    document.dispatchEvent(new CustomEvent(this.variableName, { detail: newValue }));
+  }
+
+  waitForChange() {
+    return new Promise((resolve) => {
+      document.addEventListener(this.variableName, (e) => {
+        resolve(e.detail);
+      }, { once: true });
+    });
+  }
 }
