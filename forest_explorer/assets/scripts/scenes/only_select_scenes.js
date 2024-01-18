@@ -57,9 +57,7 @@ class OnlySelectScene extends Phaser.Scene {
       yoyo: true,
       duration: 50
     };
-    console.log(target);
     await Util.waitForTween(this, tweenParameter);
-    console.log(target);
   }
   createBackground(imageID) {
     this.background = this.add.image(448, 256, imageID).setAlpha(0);
@@ -227,7 +225,7 @@ export class GameOver_Scene extends OnlySelectScene {
   async pointerDownHandler(pointer, gameObjects) {
     const target = await super.pointerDownHandler(pointer, gameObjects);
     if (!target) return;
-    const startscene = gameObjects[0].name === this.CONTINUE_BUTTON ? 'Game_Scene' : 'Title_Scene';
+    const startscene = target.name === this.CONTINUE_BUTTON ? 'Game_Scene' : 'Title_Scene';
     this.scene.start(startscene, { playerdata: this.playerdata, currentStage: this.currentStage });
   }
   async create() {

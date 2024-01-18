@@ -65,7 +65,7 @@ export class CardHolder {
       return 0;
     }
 
-    // 単純なランダム
+    // 単純なランダム、１００回失敗した場合は０
     for (let index = 0; index < 100; index++) {
       const random = Phaser.Math.Between(0, 100);
 
@@ -81,7 +81,7 @@ export class CardHolder {
         return 2;
       }
       // テレポート
-      else if (random <= 80) {
+      else if (random <= 75) {
         return 3;
       }
       // 休息（同じカードが無ければ＆同ステージの休息カード出現回数が残っている）
