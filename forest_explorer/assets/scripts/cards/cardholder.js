@@ -27,8 +27,6 @@ export class CardHolder {
     this.cards = [];
   }
   create(repeat) {
-    console.log(this.isBattleScene)
-
     for (let index = this.cards.length; index < repeat; index++) {
       const rnd = this.getRandomCardFromStore();
       if (rnd === -1) { return false }
@@ -129,7 +127,6 @@ export class CardHolder {
     let tweens = [];
 
     for (let i = 0; i < this.cards.length; i++) {
-      console.log(i);
       const tweenParameter = {
         x: Util.calcHandCardPositon(i).x,
         y: Util.calcHandCardPositon(i).y,

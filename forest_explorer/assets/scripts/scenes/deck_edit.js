@@ -196,7 +196,6 @@ export class DeckEdit_Scene extends Phaser.Scene {
     }
     isMovingVertical(pointer) {
         const vector = this.getSwipeVector(this.swipeStart, { x: pointer.x, y: pointer.y });
-        console.log(vector);
         return vector === VECTOR.UP || vector === VECTOR.DOWN;
     }
     setListnerToAllCards() {

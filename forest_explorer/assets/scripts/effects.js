@@ -64,7 +64,6 @@ export async function showDamageEffect(scene, target, damage, isWeak) {
   let damage_se = isBigDamage ? 'damage' : 'damage_big';
   damage_se = damage < 0 ? 'heal' : damage_se;
 
-  console.log(damage);
   if (damage !== 0) scene.sound.play(damage_se);
 
   await Promise.all([dTween, fTween, sTween]);
@@ -77,7 +76,6 @@ export async function flashCharacter(scene, target) {
   flashImage.scaleX = target.scaleX;
   flashImage.setAlpha(0);
   flashImage.setDepth(target.depth + 1);
-  console.log(flashImage);
 
   const flashParameter = {
     targets: flashImage,

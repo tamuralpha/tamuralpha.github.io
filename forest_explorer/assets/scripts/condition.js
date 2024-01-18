@@ -8,7 +8,6 @@ export class Condition {
   }
   updateTurn() {
     Object.keys(this.list).forEach(conditionName => {
-      console.log(conditionName, this.list[conditionName]);
       this.list[conditionName]--;
 
       if (this.list[conditionName] <= 0) {

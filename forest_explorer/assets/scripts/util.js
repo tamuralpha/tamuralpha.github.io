@@ -2,7 +2,6 @@ import { ImageLayer } from "./cards/imagelayer.js";
 import { Card } from "./cards/card.js";
 
 export function craeteCard(scene, position, name, carddata, scale, showRandomValue = true, isBattle = false) {
-  console.log(carddata);
   const card_id = carddata.id;
   const card_string = isBattle ? `card_battle_${card_id}` : `card_${card_id}`;
   const imageLayer = new ImageLayer();

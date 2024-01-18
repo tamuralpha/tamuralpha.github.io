@@ -124,7 +124,6 @@ export class Battle_Scene extends Phaser.Scene {
       await Effect.showDamageEffect(this, this.enemysImage, damage, isWeak);
     }
     else {
-      console.log(effects)
       await this.playersSpecialAttack(effects);
     }
     this.headUpDisplay.refreshOnBattle();
