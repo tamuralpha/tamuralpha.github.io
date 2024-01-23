@@ -109,6 +109,7 @@ export class Title_Scene extends OnlySelectScene {
   constructor() {
     super('Title_Scene');
     this.START_BUTTON = "START"
+    this.ENDLESS_BUTTON = "ENDLESS"
     this.INFORMATION_BUTTON = "INFORMATION"
   }
   preload() {
@@ -137,7 +138,7 @@ export class Title_Scene extends OnlySelectScene {
   }
   async create() {
     await this.loadFont();
-    await super.create('title', this.START_BUTTON);
+    await super.create('title', [this.START_BUTTON, this.ENDLESS_BUTTON]);
   }
   async fadein() {
     this.game.bgm = this.sound.add('theme_2');
@@ -154,7 +155,8 @@ export class Title_Scene extends OnlySelectScene {
     }
     else {
       await Util.fadeoutOverlay(this);
-      this.scene.start("Game_Scene", {});
+      this.game.isEndressMode = target.name === this.ENDLESS_BUTTON;
+      this.scene.start("Game_Scene", { });
     }
   }
   toggleInformation() {
@@ -229,7 +231,8 @@ export class GameOver_Scene extends OnlySelectScene {
     this.scene.start(startscene, { playerdata: this.playerdata, currentStage: this.currentStage });
   }
   async create() {
-    await super.create('gameover', [this.CONTINUE_BUTTON, this.TITLE_BUTTON]);
+    const buttons = this.game.isEndressMode ? this.TITLE_BUTTON : [this.CONTINUE_BUTTON, this.TITLE_BUTTON];
+    await super.create('gameover', buttons);
   }
   createGameOverMessage() {
     const text = this.add.text(448, 84, "GAME OVER", {
@@ -260,7 +263,9 @@ export class GameClear_Scene extends OnlySelectScene {
   async fadein() {
     this.game.bgm = this.sound.add('theme_3');
     this.game.bgmID = 'theme_3';
-    await super.fadein(this.createGameClearMessage());
+    let fadeInAddList = [this.createGameClearMessage()];
+    if (this.game.isEndressMode) fadeInAddList = fadeInAddList.concat(this.createEndressModeScore());
+    await super.fadein(fadeInAddList);
   }
   async pointerDownHandler(pointer, gameObjects) {
     const target = await super.pointerDownHandler(pointer, gameObjects);
@@ -269,13 +274,35 @@ export class GameClear_Scene extends OnlySelectScene {
   }
   createGameClearMessage() {
     const text = this.add.text(448, 84, this.MESSAGE, {
-      fontSize: 84,
+      fontSize: 72,
       fontFamily: "Pixelify Sans",
       color: "#FFF",
       stroke: '#000',
       strokeThickness: 8
     }).setAlpha(0);
     text.x -= text.width / 2;
+    text.y -= text.height / 2;
     return text;
+  }
+  createEndressModeScore() {
+    const text = this.add.text(448, 138, `YOUR SCORE IS`, {
+      fontSize: 36,
+      fontFamily: "Pixelify Sans",
+      color: "#FFF",
+      stroke: '#000',
+      strokeThickness: 8
+    }).setAlpha(0);
+    const value = this.add.text(448, 186, `${this.currentStage}`, {
+      fontSize: 64,
+      fontFamily: "Pixelify Sans",
+      color: "#FFF",
+      stroke: '#000',
+      strokeThickness: 8
+    }).setAlpha(0);
+    text.x -= text.width / 2;
+    text.y -= text.height / 2;
+    value.x -= value.width / 2;
+    value.y -= value.height / 2;
+    return [text, value];
   }
 }

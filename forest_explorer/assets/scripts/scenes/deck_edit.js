@@ -1,6 +1,6 @@
-import { CardDatabase } from "../cards/carddatabase.js";
+import { CardDatabase, EndressCardDatabase } from "../cards/carddatabase.js";
 import { ImageLayer } from "../cards/imagelayer.js";
-import { Card } from "../cards/card.js";
+import { CardObject } from "../cards/card.js";
 import { DEPTH, VECTOR, BOARD_ID } from "../constants.js";
 import { Deck } from "../cards/deck.js";
 
@@ -16,6 +16,7 @@ export class DeckEdit_Scene extends Phaser.Scene {
         this.cardInventory = new Map([...data.cardInventory]);
         this.isReadOnly = data.isReadOnly;
         this.inventoryBoard = new InventoryBoard(this, this.cardInventory, this.preEditDeck);
+        this.index = data.index;
     }
     panCamera(x, y, duration = 0, easing = "Power2") {
         return new Promise(resolve => {
@@ -24,7 +25,7 @@ export class DeckEdit_Scene extends Phaser.Scene {
         });
     }
     async create() {
-        this.carddatabase = new CardDatabase(this);
+        this.carddatabase = this.game.isEndressMode ? new EndressCardDatabase(this, this.index) : new CardDatabase(this);
         const beforeCenterY = this.cameras.main.centerY;
         await this.panCamera(this.cameras.main.centerX, beforeCenterY * -4);
 
@@ -86,7 +87,7 @@ export class DeckEdit_Scene extends Phaser.Scene {
 
         // 移動量が一定以下ならダメ
         const dy = Math.abs(pointer.y - this.swipeStart.y);
-        if (dy < this.SWIPE_THRESHOLD) {return;}
+        if (dy < this.SWIPE_THRESHOLD) { return; }
 
         this.inventoryBoard.container.y += pointer.velocity.y;
         this.inventoryBoard.container.y = Phaser.Math.Clamp(this.inventoryBoard.container.y, -72 * this.inventoryBoard.cards.size + 360, 0);
@@ -118,22 +119,22 @@ export class DeckEdit_Scene extends Phaser.Scene {
         }
     }
     addCardFromInventory(index) {
-        if (!this.inventoryBoard.checkCanAddIndex(this.carddatabase.get_battle(index).id)) return;
+        const carddata = this.inventoryBoard.getCarddataFromIndex(index);
+        if (!this.inventoryBoard.checkCanAdd(carddata)) return;
 
         this.sound.play('deck_edit');;
-        const addedCardGameObject = this.editBoard.addNewCard(this.carddatabase.get_battle(index))
+        const addedCardGameObject = this.editBoard.addNewCard(carddata)
         if (addedCardGameObject === null) return;
 
-        this.inventoryBoard.calcDeckOutCardAmount(this.carddatabase.get_battle(index).id, -1);
+        this.inventoryBoard.calcDeckOutCardAmount(carddata, -1);
         this.setListnerToCard(addedCardGameObject);
         this.whenEdit();
     }
     removeCardFromEditBoard(index) {
-        this.sound.play('deck_edit');;
-        const cardID = this.editBoard.deckdata.cards[index].data.id;
-
+        this.sound.play('deck_edit');
+        const carddata = this.editBoard.deckdata.cards[index].data;
         this.editBoard.removeCard(index);
-        this.inventoryBoard.calcDeckOutCardAmount(cardID, 1);
+        this.inventoryBoard.calcDeckOutCardAmount(carddata, 1);
         this.whenEdit();
     }
     // 編集のリセット
@@ -151,9 +152,9 @@ export class DeckEdit_Scene extends Phaser.Scene {
     }
     // 編集終了、ボードを画面外に下げてから全内容を消去
     async endEdit() {
-        if (this.editBoard.deckdata.cards.length !== 20) { 
-            this.sound.play('denied'); 
-            ;return; 
+        if (this.editBoard.deckdata.cards.length !== 20) {
+            this.sound.play('denied');
+            ; return;
         } // カードの枚数は20枚でなければならない
 
         const asseptSoundID = this.isReadOnly ? "decide" : "accept";
@@ -283,7 +284,7 @@ class EditBoard {
     }
     createCard(index, cardData) {
         const imageLayer = new ImageLayer();
-        const card = new Card(imageLayer, cardData.id, cardData);
+        const card = new CardObject(imageLayer, cardData.id, cardData);
 
         const position = this.calcCardPositon(128 * this.CARD_SCALE, index)
         const frame = this.createFrame(card, position, index);
@@ -424,7 +425,7 @@ class EditBoard {
 class InventoryBoard {
     constructor(scene, cardInventory, preEditDeck) {
         this.scene = scene;
-        this.carddatabase = new CardDatabase(this.scene);
+        this.carddatabase = this.scene.game.isEndressMode ? new EndressCardDatabase(this.scene) : new CardDatabase(this.scene);
         this.INVENTORY_CARD_OFFSET = 72;
         this.viewRect = new Phaser.Geom.Rectangle(535, 93, 336, 358);
         this.cards = new Map();
@@ -435,6 +436,10 @@ class InventoryBoard {
     }
     getCardFrameGameObjects() {
         return [...this.cards.values()].map(card => card.imageLayer.getFrame());
+    }
+    getCarddataFromIndex(index) {
+        const keys = Array.from(this.cards.keys());
+        return this.cards.get(keys[index]).data;
     }
     clear() {
         this.cards = new Map();
@@ -457,10 +462,11 @@ class InventoryBoard {
 
         for (let index = 0; index < inventoryKeys.length; index++) {
             const key = inventoryKeys[index];
-            const allAmount = this.cardInventory.get(key);
+            const carddata = this.cardInventory.get(key).data;
+            const allAmount = this.cardInventory.get(key).count;
             const deckInAmount = this.preEditDeck.getCountInDeck(key);
             const deckOutAmount = allAmount - deckInAmount;
-            const result = this.createInventoryCard(index, key, deckOutAmount);
+            const result = this.createInventoryCard(index, carddata.id, carddata, deckOutAmount);
 
             if (result === null)
                 return;
@@ -479,15 +485,15 @@ class InventoryBoard {
         let mask = this.scene.make.graphics().fillRectShape(this.viewRect);
         this.container.setMask(mask.createGeometryMask());
     }
-    createInventoryCard(index, cardID, amount) {
+    createInventoryCard(index, cardID, carddata, amount) {
         const imageLayer = new ImageLayer();
-        const card = new Card(imageLayer, cardID, this.carddatabase.get_battle(cardID));
+        const card = new CardObject(imageLayer, cardID, carddata);
         if (card.data === undefined) { return null; }
 
         const position = { x: 703, y: 128 + (72 * index) }
 
         const image = this.createImage(position, cardID);
-        const frame = this.createFrame(position, cardID);
+        const frame = this.createFrame(position, index);
         const valueText = this.createValueText(card.data, position);
         const amountText = this.createAmountText(position, amount);
         this.setIconToInventoryCard(position, card);
@@ -505,15 +511,18 @@ class InventoryBoard {
 
         return card
     }
-    checkCanAddIndex(id) {
-        return this.amounts.get(id) > 0;
+    checkCanAdd(carddata) {
+        const key = `${carddata.id}-${carddata.effects.rnd_value}`;
+        return this.amounts.get(key) > 0;
     }
-    calcDeckOutCardAmount(id, value) {
-        const nowAmount = this.amounts.get(id) || 0;
+    calcDeckOutCardAmount(carddata, value) {
+        const key = `${carddata.id}-${carddata.effects.rnd_value}`;
+        const nowAmount = this.amounts.get(key) || 0;
         const calcedAmount = nowAmount + value;
-        this.amounts.set(id, calcedAmount);
-        this.setTextFromAmount(id, calcedAmount);
-        this.setTintFromID(id);
+        this.amounts.set(key, calcedAmount);
+
+        this.setTextDeckoutCardAmount(this.cards.get(key), this.amounts.get(key));
+        this.setTintFromAmount(this.cards.get(key), this.amounts.get(key));
     }
     // カードの枚数に基づき、色を決めます
     setTintFromAmount(card, amount) {
@@ -523,13 +532,9 @@ class InventoryBoard {
         else
             image.setTint(0xFFFFFF);
     }
-    // カードの枚数に基づき、色を決めます
-    setTintFromID(id) {
-        this.setTintFromAmount(this.cards.get(id), this.amounts.get(id));
-    }
-    // カードの枚数に基づき、色を決めます
-    setTextFromAmount(id, amount) {
-        this.setTextDeckoutCardAmount(this.cards.get(id), amount);
+    getCardFromIndex(index) {
+        const keys = Array.from(this.cards.keys());
+        return this.cards.get(keys[index]);
     }
     setTextDeckoutCardAmount(card, amount) {
         const text = card.imageLayer.items[3] ? card.imageLayer.items[3] : card.imageLayer.items[2]; // カード生成時、値なしカードなら2、でなければ3番目に対象テキストが格納

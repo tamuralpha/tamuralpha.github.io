@@ -10,7 +10,8 @@ import { DeckEdit_Scene } from './deck_edit.js'
 import { Battle_Scene } from './battle.js'
 import { HeadUpDisplay } from '../head-up-display.js'
 import { Treasure_Scene } from './treasure.js';
-import { StageDatabase } from '../stagedata.js'
+import { EndlessStageDatabase, StageDatabase } from '../stagedata.js'
+import { EndressCardDatabase, CardDatabase } from '../cards/carddatabase.js'
 
 class Game_Scene extends Phaser.Scene {
   constructor() {
@@ -48,6 +49,7 @@ class Game_Scene extends Phaser.Scene {
       ice: 4,
       wind: 4,
       iron: 6,
+      other: 11,
       boss: 1
     }
     for (const type of Object.keys(types_lengths)) {
@@ -63,12 +65,17 @@ class Game_Scene extends Phaser.Scene {
     this.data = data
   }
   async create() {
-    this.stageDatabase = new StageDatabase(this);
+    this.stageDatabase = this.game.isEndressMode ? new EndlessStageDatabase(this) : new StageDatabase(this);
     this.stagedata = this.stageDatabase.getData(this.currentStageID);
+    this.cardDatabase = this.game.isEndressMode ? new EndressCardDatabase(this, this.stagedata.index) : new CardDatabase(this);
 
-    this.deck = new Deck(this);
-    this.playerdata = this.data.playerdata ? this.data.playerdata : new PlayerData(this);
+    this.deck = new Deck();
+
+    const isLoadedPlayerdata = !!this.data.playerdata;
+    this.playerdata = isLoadedPlayerdata ? this.data.playerdata : new PlayerData();
+    if (!isLoadedPlayerdata) this.setDefaultDeck();
     this.playerdata_whenStageStart = this.playerdata.copy();
+
     this.handCardHolder = new CardHolder(this, null, this.stagedata);
     this.headUpDisplay = new HeadUpDisplay(this, this.playerdata, this.stagedata);
 
@@ -114,9 +121,19 @@ class Game_Scene extends Phaser.Scene {
       // await this.launchBattleScene(`enemy_${this.stagedata.bossID}`);
       // await this.startGameClaerScene();
       // this.cardHolder.clear();
-      // this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1 });
+      // this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1, playerdata: this.playerdata });
       // this.isInputActive = true;
     });
+  }
+  // 初回
+  setDefaultDeck() {
+    // 0*4 1*5 2*5 3*5 10*1
+    const init_deck = [0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 10];
+    init_deck.forEach(cardID => {
+      const carddata = this.cardDatabase.get_battle(cardID);
+      this.playerdata.addCard(carddata);
+      this.playerdata.deck.add(carddata);
+    })
   }
   // BGM管理
   startBGM() {
@@ -229,7 +246,7 @@ class Game_Scene extends Phaser.Scene {
     let isOverlapEventDone = false;
 
     for (let index = 0; index < restTurnAmount && !isOverlapEventDone; index++) {
-      this.playerdata.heartPoint += Math.ceil(this.currentStageID / 2); // 現在のステージ数 /2 （切り上げ）回復。最大値は今のところ無い
+      this.playerdata.upHP(Math.ceil(this.currentStageID / 2)); // 現在のステージ数 /2 （切り上げ）回復。最大値は今のところ無い
       this.playerdata.deck.randomRecover();
       this.headUpDisplay.refreshOnMap();
 
@@ -292,7 +309,7 @@ class Game_Scene extends Phaser.Scene {
     }
 
     await Util.fadeoutOverlay(this); // シーン移行後も残る？
-    this.playerdata.heartPoint += 10; // クリアボーナス
+    this.playerdata.upHP(10); // クリアボーナス
     this.clear();
     this.scene.start(this.scene.key, { currentStage: this.currentStageID + 1, playerdata: this.playerdata });
   }
@@ -300,6 +317,7 @@ class Game_Scene extends Phaser.Scene {
     this.handCardHolder.clear();
   }
   async startGameOverScene() {
+    if(this.game.isEndressMode) { await this.startGameClaerScene(); return; } // エンドレスモード時はゲームオーバー＝クリア
     await Util.fadeoutOverlay(this); // シーン移行後も残る？
     this.clear();
     this.scene.start('GameOver_Scene', { playerdata: this.playerdata_whenStageStart, currentStage: this.currentStageID });
@@ -307,7 +325,7 @@ class Game_Scene extends Phaser.Scene {
   async startGameClaerScene() {
     await Util.fadeoutOverlay(this); // シーン移行後も残る？
     this.clear();
-    this.scene.start('GameClear_Scene', { playerdata: this.playerdata });
+    this.scene.start('GameClear_Scene', { playerdata: this.playerdata, currentStage: this.currentStageID });
   }
   async launchOverlapEvent(overlapPair) {
     if (overlapPair[0].type !== MAP_OBJECT_TYPE.PLAYER) { return false; }
@@ -331,7 +349,7 @@ class Game_Scene extends Phaser.Scene {
   // "launch"です。背後ではこのシーンが消えずに残ってます（操作不可）
   async launchBattleScene(enemyID, isBossEnemy) {
     const overlay = await Util.fadeoutOverlay(this);
-    this.scene.launch('Battle_Scene', { playerdata: this.playerdata, enemyID: enemyID, stagedata: this.stagedata });
+    this.scene.launch('Battle_Scene', { playerdata: this.playerdata, enemyID: enemyID, stagedata: this.stagedata, isBossEnemy: isBossEnemy });
 
     await new Promise(async resolve => {
       const onBattleCompleted = async (playerdata) => {
@@ -355,7 +373,7 @@ class Game_Scene extends Phaser.Scene {
   }
   async launchDeckEditScene(isReadOnly) {
     this.sound.play('pick_card');
-    this.scene.launch('DeckEdit_Scene', { playersDeck: this.playerdata.deck, cardInventory: this.playerdata.cardInventory, isReadOnly: isReadOnly });
+    this.scene.launch('DeckEdit_Scene', { playersDeck: this.playerdata.deck, cardInventory: this.playerdata.cardInventory, isReadOnly: isReadOnly, index: this.currentStageID });
 
     await new Promise(resolve => {
       // 編集後のデッキデータを受け取る
@@ -383,7 +401,7 @@ class Game_Scene extends Phaser.Scene {
     const dropRank = this.stagedata.dropRank;
     const rareDropRate = isRareDrop ? 100 : this.stagedata.rareDropRate;
 
-    this.scene.launch('Treasure_Scene', { rank: dropRank, rareDropRate: rareDropRate });
+    this.scene.launch('Treasure_Scene', { rank: dropRank, rareDropRate: rareDropRate, index: this.currentStageID });
 
     await new Promise(resolve => {
       const onTreasureSelectCompleted = (treasure) => {
@@ -456,8 +474,8 @@ function resizeGame() {
   canvas.style.height = (canvasHeight * scale) + 'px'
 }
 
-window.addEventListener('resize', resizeGame);
+// window.addEventListener('resize', resizeGame);
 
 // ゲーム起動
 var game = new Phaser.Game(config);
-resizeGame();
+// resizeGame();

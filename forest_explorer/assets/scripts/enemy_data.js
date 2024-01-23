@@ -4,19 +4,68 @@ export class EnemyDatabase {
   constructor(scene) {
     this.enemydatas = scene.cache.json.get('enemy_data');
   }
-  get(id) {
+  // isEndressModeの場合、indexが必要になる（通常では不要）、上手く書けない
+  get(id, index = -1) {
     const original = this.enemydatas[id];
-    return new EnemyData(original.id, original.type, original.heart_point, original.attack_point, original.option);
+    return new EnemyData({
+      id: original.id,
+      type: original.type,
+      heartPoint: original.heart_point,
+      attackPoint: original.attack_point,
+      option: original.option
+    });
+  }
+}
+// エンドレスモード用、ステータスの自動算出機能が入ってます
+export class EndressEnemyDatabase extends EnemyDatabase {
+  constructor(scene) {
+    super(scene);
+    this.cache = {};
+  }
+  get(id, index) {
+    if (!this.cache[id]) {
+      // キャッシュにない場合、新しく生成して保存
+      this.cache[id] = this.create(id, index);
+    }
+    return this.cache[id];
+  }
+  create(id, index) {
+    const type = id.split('_')[0];
+    const isIDHasElement = Object.values(EFFECT_ELEMENT).includes(type);
+
+    return new EnemyData({
+      id: id,
+      type: isIDHasElement ? type : this.getRandomElement(),
+      heartPoint: this.createHeartPoint(index),
+      attackPoint: this.createAttackPoint(index),
+      option: {}
+    });
+  }
+  getRandomElement() {
+    const elementList = Object.values(EFFECT_ELEMENT);
+    return this.getRandomFromArray(elementList);
+  }
+  getRandomFromArray(target) {
+    const rnd = Phaser.Math.Between(0, target.length - 1);
+    return target[rnd];
+  }
+  // 初期値は10、非有利の下位攻撃魔法の一撃では落ちない数値
+  createHeartPoint(index) {
+    return 6 + index * 4 + Math.ceil(index / 5);
+  }
+  // 初期値は2、
+  createAttackPoint(index) {
+    return index + Math.ceil(index / 5);
   }
 }
 export class EnemyData {
-  constructor(id, type, heartPoint, attackPoint, option) {
-    this.id = id;
-    this.type = type;
-    this.heartPoint = heartPoint;
-    this.attackPoint = attackPoint;
+  constructor(data) {
+    this.id = data.id;
+    this.type = data.type;
+    this.heartPoint = data.heartPoint;
+    this.attackPoint = data.attackPoint;
     this.condition = new Condition();
-    this.option = option;
+    this.option = data.option;
   }
   damage(type, value) {
     const isWeak = this.checkIsWeak(type);
@@ -24,6 +73,11 @@ export class EnemyData {
 
     this.heartPoint -= value;
     return value;
+  }
+  // 現状エンドレスモード用、ステージ数に応じてパワーアップさせます
+  enhance(stageCount) {
+    this.heartPoint = Math.ceil(this.heartPoint * 1.5);
+    this.attackPoint = Math.ceil(this.attackPoint * 1.5) + Math.ceil(stageCount / 5);
   }
   effect(effects) {
     switch (effects.effect) {

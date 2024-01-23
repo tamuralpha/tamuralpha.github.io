@@ -1,5 +1,5 @@
-import { CardDatabase } from "./carddatabase.js";
 import { EFFECT_ELEMENT } from "../constants.js";
+import * as Util from '../util.js'
 
 // デッキのカードは『カードのデータ』のみです
 // ここから各クラスでデータを元に色々生み出したりします
@@ -11,10 +11,8 @@ import { EFFECT_ELEMENT } from "../constants.js";
 // 戦闘中に使用し、使用不可になった状態です
 // デッキ内にカードはありますが、使用不可でドローもされません
 export class Deck {
-  constructor(scene) {
+  constructor() {
     this.cards = [];
-    this.scene = scene;
-    this.carddatabase = new CardDatabase(scene);
     this.statuses = []; // cardsと統合したクラスを作るべき？
   }
   // ドロー済みでないカードからランダムに一枚引く
@@ -46,14 +44,6 @@ export class Deck {
 
     this.statuses[usedIndex].used = true;
   }
-  // 偏向するランダムな整数を求める、paramの値が高ければ高いほど整数は大きくなりやすい
-  biasedRandomInt(minVal, maxVal, param) {
-    let range = maxVal - minVal + 1;
-    let random = Phaser.Math.Between(0, range - 1);
-    random += param * (range / 10);
-    random = Phaser.Math.Clamp(random, 0, range - 1);
-    return Math.round(minVal + random);
-  }
   // RandomValue計算用の補正を計算します
   calcRandomValueWithBonus(card) {
     if (card.effects.rnd_value !== undefined && card.effects.rnd_value) {
@@ -61,19 +51,12 @@ export class Deck {
       const count = this.getCountSameElement(cardsElement);
       const splited = card.effects.rnd_value.split('-');
 
-      card.effects.value = this.biasedRandomInt(parseInt(splited[0]), parseInt(splited[1]), count);
+      card.effects.value = Util.biasedRandomInt(parseInt(splited[0]), parseInt(splited[1]), count);
     }
   }
   add(card) {
     this.cards.push(card);
     this.statuses.push({ drawed: false, used: false });
-  }
-  addFromIdArray(idArray) {
-    for (let index = 0; index < idArray.length; index++) {
-      const element = idArray[index];
-      const card = this.carddatabase.get_battle(element);
-      this.add(card);
-    }
   }
   // デッキ内のカードをid順（昇順）ソート
   sort() {
@@ -86,15 +69,11 @@ export class Deck {
     this.cards = combined.map(element => element.card);
     this.statuses = combined.map(element => element.status);
   }
-  addByID_Battle(id) {
-    this.cards.push(this.carddatabase.get_battle(id));
-    this.statuses.push({ drawed: false, used: false });
-  }
   copy() {
     const copiedCards = JSON.parse(JSON.stringify(this.cards));
     const copiedStatuses = JSON.parse(JSON.stringify(this.statuses));
 
-    const copiedDeck = new Deck(this.scene);
+    const copiedDeck = new Deck();
     copiedDeck.cards = copiedCards;
     copiedDeck.statuses = copiedStatuses;
 
@@ -122,9 +101,10 @@ export class Deck {
 
     return filteredIndexes;
   }
-  // 指定カードidのカードがデッキ内に何枚入っているかを返します
-  getCountInDeck(id) {
-    return this.cards.reduce((acc, card) => card.id === id ? acc + 1 : acc, 0);
+  // 指定カードデータのカードがデッキ内に何枚入っているかを返します
+  // -> 指定したキーのカードが
+  getCountInDeck(key) {
+    return this.cards.reduce((acc, card) => `${card.id}-${card.effects.rnd_value}` === key ? acc + 1 : acc, 0);
   }
   // 指定したelementと同一のelementの枚数を得ます
   getCountSameElement(element) {

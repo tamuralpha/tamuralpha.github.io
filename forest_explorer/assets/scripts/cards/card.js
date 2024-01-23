@@ -1,5 +1,6 @@
-
-export class Card {
+// 画面上に表示されるカードを実態となるGameObjectともども扱うクラス
+// カードは複数のGameObjectで構成され、ImageLayerクラスで管理している
+export class CardObject {
   constructor(imageLayer, id, data) {
     this.imageLayer = imageLayer;
     this.name = imageLayer.getName;

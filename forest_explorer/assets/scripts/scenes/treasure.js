@@ -1,7 +1,5 @@
 import { DEPTH } from '../constants.js';
-import { CardDatabase } from '../cards/carddatabase.js';
-import { ImageLayer } from '../cards/imagelayer.js';
-import { Card } from '../cards/card.js';
+import { CardDatabase, EndressCardDatabase } from '../cards/carddatabase.js';
 import * as Util from '../util.js'
 
 // 3枚のカードから一枚を選んで取得
@@ -15,9 +13,10 @@ export class Treasure_Scene extends Phaser.Scene {
     this.amount = data.amount ? data.amount : 3;
     this.rank = data.rank ? data.rank : 1;
     this.rareDropRate = data.rareDropRate ? data.rareDropRate : 0;
+    this.index = data.index;
   }
   async create() {
-    this.carddatabase = new CardDatabase(this);
+    this.carddatabase = this.game.isEndressMode ? new EndressCardDatabase(this, this.index): new CardDatabase(this, this.index);
     this.createCards()
 
     this.input.on('pointerdown', async (pointer, gameObjects) => {
@@ -30,7 +29,7 @@ export class Treasure_Scene extends Phaser.Scene {
     let promises = [];
 
     for (let index = 0; index < this.amount; index++) {
-      const rnd = this.getRandomCard(this.rank);
+      const rnd = this.game.isEndressMode ? this.getRandomCardOnEndress() : this.getRandomCard();
       if (rnd === -1) { return false }
 
       const position = { x: 180 + 268 * index, y: 256 }
@@ -195,6 +194,38 @@ export class Treasure_Scene extends Phaser.Scene {
       else
         continue;
     }
+  }
+  getRandomCardOnEndress() {
+    for (let i = 0; i < 100; i++) {
+      const isAttackMagic = Phaser.Math.Between(0, 100) > 15;
+      let cardID = 0;
+
+      if (isAttackMagic) {
+        // const isRandomRankUp = Phaser.Math.Between(0, 100) < this.rareDropRate;
+        const temprank = Phaser.Math.Between(1, 3);
+        const randomOnRank = 1 + (temprank - 1) * 3;
+        const id = randomOnRank + Phaser.Math.Between(0, 2)
+
+        cardID = id;
+      }
+      else {
+        // 補助魔法はランダムランクアップしない
+        const randomRank = Phaser.Math.Between(1, 3);
+        let effectMagicList = [0, 10, 11];
+        if (randomRank > 1) effectMagicList = effectMagicList.concat([12, 13]);
+        if (randomRank > 2) effectMagicList.push(14);
+
+        const index = Phaser.Math.Between(0, effectMagicList.length - 1);
+
+        cardID = effectMagicList[index];
+      }
+
+      if (!this.cards.find(card => card.id === cardID))
+        return cardID;
+      else
+        continue;
+    }
+
   }
   slideIn(index) {
     if (this.cards[index] === undefined) { return }

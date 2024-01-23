@@ -12,15 +12,24 @@ export class MapObjectHolder {
   async initialize() {
     this.create('player', 0, 1, MAP_OBJECT_TYPE.PLAYER, DEPTH.PLAYER_0);
     await Promise.all(this.popEffectAll());
-    this.scene.sound.play('step'); 
+    this.scene.sound.play('step');
   }
   create(textureId, x, y, type, depth) {
     const position = Util.calcPosition(x, y);
     const mapImage = this.scene.add.image(position.x, position.y, textureId).setDepth(depth);
-    mapImage.y = mapImage.y - mapImage.height / 2;
-    mapImage.scaleX = type === MAP_OBJECT_TYPE.PLAYER ? -1 : 1;
     mapImage.name = textureId;
 
+    let scale = 1;
+    const maxSize = 148;
+
+    if (mapImage.width > maxSize || mapImage.height > maxSize) {
+      scale = Math.min(maxSize / mapImage.width, maxSize / mapImage.height);
+      mapImage.setScale(scale);
+    }
+
+      // プレイヤーは左右反転
+    mapImage.scaleX = type === MAP_OBJECT_TYPE.PLAYER ? mapImage.scaleX * -1 : mapImage.scaleX;
+    mapImage.y = mapImage.y - (mapImage.height * mapImage.scaleY) / 2;
     const mapObject = new MapObject(mapImage, type);
     mapObject.position = { x: x, y: y };
     this.mapObjects.push(mapObject);
@@ -112,7 +121,7 @@ export class MapObjectHolder {
     return {
       targets: target,
       alpha: 0,
-      y: '+=20', 
+      y: '+=20',
       duration: MOVE_SPEED * 2,
       ease: 'Power2'
     };
@@ -252,7 +261,7 @@ export class MapObjectHolder {
     teleportEffect.y = newPosition.y;
 
     await Util.waitForTween(this.scene, teleportParameter);
- 
+
     mapObject.gameObject.setAlpha(1);
     teleportParameter.alpha = { from: 1, to: 0 }
 

@@ -4,7 +4,7 @@ import { HeadUpDisplay } from '../head-up-display.js'
 import * as Util from '../util.js'
 import * as Effect from '../effects.js'
 import * as SpecialAttackHandler from '../special_attack_handler.js'
-import { EnemyData, EnemyDatabase } from "../enemy_data.js";
+import { EnemyDatabase, EndressEnemyDatabase } from "../enemy_data.js";
 
 export class Battle_Scene extends Phaser.Scene {
   constructor() {
@@ -14,15 +14,20 @@ export class Battle_Scene extends Phaser.Scene {
     this.playerdata = data.playerdata;
     this.stagedata = data.stagedata;
     this.enemyID = data.enemyID;
+    this.playerStartHP = this.playerdata.heartPoint;
+    this.isBossEnemy = data.isBossEnemy;
   }
   async create() {
     this.isInputActive = false;
     this.isSpecialInputActive = false;
     this.specialInputVariable = new Util.ObservableVariable("specialInputValue");
 
-    this.enemydatabase = new EnemyDatabase(this);
+    this.enemydatabase = this.game.isEndressMode ? new EndressEnemyDatabase(this) : new EnemyDatabase(this);
+
+    // enemyIDは"enemy_type0"的な形式なのでsplitすると[1]にtype0部分が入る
     const enemydataID = this.enemyID.split('enemy_');
-    this.enemydata = this.enemydatabase.get(enemydataID[1]);
+    this.enemydata = this.enemydatabase.get(enemydataID[1], this.stagedata.index);
+    if (this.game.isEndressMode && this.isBossEnemy) { this.enemydata.enhance(this.stagedata.index); }
 
     const overlay = Util.prepareFadeinOverlay(this);
     this.add.image(448, 256, `background_${Util.getStageBackgroundIndex(this.currentStageID)}`);
@@ -33,7 +38,7 @@ export class Battle_Scene extends Phaser.Scene {
     this.drawCharacter();
     await Util.fadeinOverlay(this, overlay);
 
-    this.handCardHolder = new CardHolder(this, this.playerdata.deck);
+    this.handCardHolder = new CardHolder(this, this.playerdata.deck, this.stagedata);
     await this.createCards();
 
     this.isInputActive = true;
@@ -151,8 +156,8 @@ export class Battle_Scene extends Phaser.Scene {
     let tint = 0x000000;
     const weakElement = enemydata.getWeak();
     if (weakElement === EFFECT_ELEMENT.FIRE) { tint = 0xFF0000; }
-    if (weakElement === EFFECT_ELEMENT.ICE) { tint = 0x0000FF; }
-    if (weakElement === EFFECT_ELEMENT.WIND) { tint = 0x00FF00; }
+    else if (weakElement === EFFECT_ELEMENT.ICE) { tint = 0x0000FF; }
+    else if (weakElement === EFFECT_ELEMENT.WIND) { tint = 0x00FF00; }
 
     // エミッターの設定
     this.analyzeEffectParticle = Effect.createAnalyzeEffect(this, target, tint);
