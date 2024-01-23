@@ -1,12 +1,12 @@
-import { Card } from './card.js';
-import { CardDatabase } from './carddatabase.js';
+import { CardObject } from './card.js';
+import { CardDatabase, EndressCardDatabase } from './carddatabase.js';
 import { ImageLayer } from './imagelayer.js';
 import * as Util from '../util.js'
 
 export class CardHolder {
   constructor(scene, deck = null, stagedata = null) {
     this.scene = scene;
-    this.cardDatabase = new CardDatabase(this.scene);
+    this.cardDatabase = this.scene.game.isEndressMode ? new EndressCardDatabase(this.scene, stagedata.index) : new CardDatabase(this.scene);
     this.deck = deck;
     this.cards = [];
     this.stagedata = stagedata;
@@ -28,12 +28,9 @@ export class CardHolder {
   }
   create(repeat) {
     for (let index = this.cards.length; index < repeat; index++) {
-      const rnd = this.getRandomCardFromStore();
-      if (rnd === -1) { return false }
-
       const position = Util.calcHandCardPositon(index);
-
-      const carddata = this.isBattleScene ? this.cardDatabase.get_battle(rnd) : this.cardDatabase.get(rnd);
+      const carddata = this.getRandomCarddataFromStore();
+      if (!carddata) { return false; }
       const card = Util.craeteCard(this.scene, position, index, carddata, 0.5, false, this.isBattleScene);
 
       this.scene.input.setDraggable(card.getFrame());
@@ -44,18 +41,20 @@ export class CardHolder {
   }
   // 一定の出現アルゴリズムを元にランダムなカードIDを返します
   // デッキが存在していればその中から
-  getRandomCardFromStore() {
+  getRandomCarddataFromStore() {
     if (this.isBattleScene)
-      return this.getRandomCardIDOnBattle();
-    else
-      return this.getRandomCardIDOnMap();
+      return this.getRandomCarddataOnBattle();
+    else {
+      const id = this.getRandomCardIDOnMap();
+      return this.cardDatabase.get(id);
+    }
   }
-  getRandomCardIDOnBattle() {
+  getRandomCarddataOnBattle() {
     const drawedIndex = this.deck.draw()
-    if (drawedIndex === -1) { return -1 }
+    if (drawedIndex === -1) { return false }
 
     const drawedCard = this.deck.cards[drawedIndex];
-    return drawedCard.id;
+    return drawedCard;
   }
   // マップ上で使うカードをランダムに生成します
   // 基本的には乱数で決定しますが、それぞれの除外条件を満たしていればリターンせず再決定させます
