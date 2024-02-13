@@ -474,8 +474,8 @@ function resizeGame() {
   canvas.style.height = (canvasHeight * scale) + 'px'
 }
 
-// window.addEventListener('resize', resizeGame);
+window.addEventListener('resize', resizeGame);
 
 // ゲーム起動
 var game = new Phaser.Game(config);
-// resizeGame();
+resizeGame();
